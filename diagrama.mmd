@@ -1,0 +1,28 @@
+graph TD
+    A[Plataforma de Cursos] --> B[Curso]
+    
+    B --> C[Módulos]
+    B --> D[Aulas]
+    B --> E[Avaliações]
+    B --> F[Trabalhos Práticos]
+    B --> G[Pré-requisitos]
+
+    E --> E1[Objetivas]
+    E --> E2[Discursivas]
+    E --> E3[Projetos Práticos]
+    E --> E4[Provas com Monitoramento Remoto]
+
+    H[Aluno] --> I[Se Matricular]
+    H --> J[Trancar Matrícula]
+    H --> K[Solicitar Aproveitamento]
+    H --> L[Realizar Segunda Chamada]
+    H --> M[Solicitar Revisão de Nota]
+
+    N[Certificação] --> O[Atingir Média Mínima]
+    N --> P[Cumprir Carga Horária]
+    N --> Q[Não ter Incidentes de Integridade]
+    N --> R[Concluir Projeto Final]
+
+    I --> B
+    J --> B
+    H --> E
