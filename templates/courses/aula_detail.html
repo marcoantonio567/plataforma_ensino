@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ aula_ativa.titulo }} · {{ curso.titulo }}{% endblock %}
+
+{% block sidebar %}{% include "courses/_sidebar.html" %}{% endblock %}
+
+{% block breadcrumb %}
+  <a href="{% url 'courses:curso_detail' curso.pk %}">{{ curso.titulo }}</a>
+  › <a href="{% url 'courses:modulo_detail' curso.pk modulo_ativo.pk %}">Módulo {{ modulo_ativo.ordem }}</a>
+  › {{ aula_ativa.titulo }}
+{% endblock %}
+
+{% block content %}
+  <span class="badge">Aula {{ aula_ativa.ordem }}</span>
+  <h1>{{ aula_ativa.titulo }}</h1>
+  <h3>Módulo {{ modulo_ativo.ordem }}: {{ modulo_ativo.titulo }}</h3>
+
+  <div class="meta" style="margin-bottom:28px;">
+    <span class="meta-item">&#9201; {{ aula_ativa.duracao }} minutos</span>
+  </div>
+
+  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:28px;line-height:1.8;">
+    {% if aula_ativa.conteudo %}
+      {{ aula_ativa.conteudo|linebreaks }}
+    {% else %}
+      <p style="color:#9ca3af;">Conteúdo desta aula ainda não foi adicionado.</p>
+    {% endif %}
+  </div>
+
+  {% with aulas=modulo_ativo.aulas.all %}
+  <div class="nav-aulas">
+    {% for aula in aulas %}
+      {% if forloop.counter == aula_ativa.ordem|add:"-1" %}
+        <a href="{% url 'courses:aula_detail' curso.pk modulo_ativo.pk aula.pk %}" class="btn">
+          ← Aula anterior
+        </a>
+      {% endif %}
+      {% if forloop.counter == aula_ativa.ordem|add:"1" %}
+        <a href="{% url 'courses:aula_detail' curso.pk modulo_ativo.pk aula.pk %}" class="btn primary">
+          Próxima aula →
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% endwith %}
+{% endblock %}

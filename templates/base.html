@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Plataforma de Ensino{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 280px;
+      min-width: 280px;
+      background: #1a1a2e;
+      color: #c8ccd8;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 16px;
+      border-bottom: 1px solid #2e2e4a;
+    }
+
+    .sidebar-header .course-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      line-height: 1.4;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 12px 0;
+    }
+
+    .modulo-item {
+      border-bottom: 1px solid #2e2e4a;
+    }
+
+    .modulo-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 20px;
+      background: none;
+      border: none;
+      color: #c8ccd8;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .modulo-toggle:hover { background: #2e2e4a; }
+
+    .modulo-toggle.active {
+      background: #2e2e4a;
+      color: #fff;
+    }
+
+    .modulo-toggle .modulo-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #2e2e4a;
+      font-size: 0.7rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      color: #a0aec0;
+    }
+
+    .modulo-toggle.active .modulo-num {
+      background: #4f46e5;
+      color: #fff;
+    }
+
+    .modulo-toggle .arrow {
+      margin-left: auto;
+      font-size: 0.65rem;
+      transition: transform 0.2s;
+      color: #6b7280;
+    }
+
+    .modulo-toggle.active .arrow { transform: rotate(90deg); }
+
+    .aulas-list {
+      display: none;
+      background: #12122a;
+    }
+
+    .aulas-list.open { display: block; }
+
+    .aula-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 20px 9px 44px;
+      text-decoration: none;
+      color: #9ca3af;
+      font-size: 0.825rem;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .aula-link:hover { background: #1e1e3a; color: #e2e8f0; }
+
+    .aula-link.active {
+      color: #818cf8;
+      font-weight: 500;
+      background: #1e1e3a;
+    }
+
+    .aula-link::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ── Main content ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 14px 32px;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .topbar a { color: #4f46e5; text-decoration: none; }
+    .topbar a:hover { text-decoration: underline; }
+
+    .content {
+      padding: 40px 48px;
+      max-width: 860px;
+    }
+
+    .content h1 { font-size: 1.6rem; margin-bottom: 8px; color: #111827; }
+    .content h3 { font-size: 1rem; color: #6b7280; font-weight: 400; margin-bottom: 24px; }
+    .content p { line-height: 1.7; color: #374151; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #ede9fe;
+      color: #4f46e5;
+      margin-bottom: 12px;
+    }
+
+    .meta {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.825rem;
+      color: #6b7280;
+    }
+
+    .nav-aulas {
+      display: flex;
+      gap: 12px;
+      margin-top: 40px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      background: #fff;
+      transition: background 0.15s;
+    }
+
+    .btn:hover { background: #f3f4f6; }
+    .btn.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    .btn.primary:hover { background: #4338ca; }
+  </style>
+</head>
+<body>
+
+{% block sidebar %}{% endblock %}
+
+<div class="main">
+  <div class="topbar">
+    {% block breadcrumb %}Plataforma de Ensino{% endblock %}
+  </div>
+  <div class="content">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+<script>
+  // Abre/fecha seções de módulo ao clicar
+  document.querySelectorAll(".modulo-toggle").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const list = btn.nextElementSibling;
+      const isOpen = list.classList.contains("open");
+      // fecha todos
+      document.querySelectorAll(".aulas-list").forEach(l => l.classList.remove("open"));
+      document.querySelectorAll(".modulo-toggle").forEach(b => b.classList.remove("active"));
+      // abre o clicado (toggle)
+      if (!isOpen) {
+        list.classList.add("open");
+        btn.classList.add("active");
+      }
+    });
+  });
+</script>
+</body>
+</html>

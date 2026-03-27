@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ curso.titulo }}{% endblock %}
+
+{% block sidebar %}{% include "courses/_sidebar.html" %}{% endblock %}
+
+{% block breadcrumb %}
+  <a href="#">Cursos</a> › {{ curso.titulo }}
+{% endblock %}
+
+{% block content %}
+  <span class="badge">Curso</span>
+  <h1>{{ curso.titulo }}</h1>
+  <h3>{{ curso.modulos.count }} módulo{{ curso.modulos.count|pluralize }} &nbsp;·&nbsp; {{ curso.carga_horaria }}h de carga horária</h3>
+  <p>{{ curso.descricao }}</p>
+
+  <div class="meta">
+    <span class="meta-item">&#9733; Nota mínima: {{ curso.nota_minima }}</span>
+    <span class="meta-item">&#128218; {{ curso.modulos.count }} módulo{{ curso.modulos.count|pluralize }}</span>
+  </div>
+
+  {% if modulo_ativo %}
+    <div class="nav-aulas" style="margin-top:32px;">
+      <a href="{% url 'courses:modulo_detail' curso.pk modulo_ativo.pk %}" class="btn primary">
+        Começar → Módulo {{ modulo_ativo.ordem }}
+      </a>
+    </div>
+  {% endif %}
+{% endblock %}

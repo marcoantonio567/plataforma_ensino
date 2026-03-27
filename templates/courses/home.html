@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plataforma de Ensino</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #e2e8f0;
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+
+    header a {
+      color: #818cf8;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    header a:hover { text-decoration: underline; }
+
+    .hero {
+      background: linear-gradient(135deg, #1a1a2e 0%, #2e2e6a 100%);
+      color: #fff;
+      padding: 64px 48px;
+      text-align: center;
+    }
+
+    .hero h2 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; }
+    .hero p { color: #a5b4fc; font-size: 1rem; }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 24px;
+    }
+
+    .cursos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .curso-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: box-shadow 0.15s, transform 0.15s;
+    }
+
+    .curso-card:hover {
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+
+    .curso-card .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #ede9fe;
+      color: #4f46e5;
+      width: fit-content;
+    }
+
+    .curso-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+      line-height: 1.4;
+    }
+
+    .curso-card p {
+      font-size: 0.85rem;
+      color: #6b7280;
+      line-height: 1.5;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .curso-card .meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 4px;
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 64px 0;
+      color: #9ca3af;
+    }
+
+    .empty h3 { font-size: 1.1rem; margin-bottom: 8px; color: #6b7280; }
+    .empty p { font-size: 0.875rem; }
+
+    .empty a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 24px;
+      background: #4f46e5;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Plataforma de Ensino</h1>
+  <a href="/admin/">Admin</a>
+</header>
+
+<div class="hero">
+  <h2>Bem-vindo à Plataforma</h2>
+  <p>Escolha um curso para começar sua jornada de aprendizado.</p>
+</div>
+
+<div class="container">
+  <p class="section-title">Cursos disponíveis ({{ cursos.count }})</p>
+
+  {% if cursos %}
+    <div class="cursos-grid">
+      {% for curso in cursos %}
+        <a href="{% url 'courses:curso_detail' curso.pk %}" class="curso-card">
+          <span class="badge">Curso</span>
+          <h3>{{ curso.titulo }}</h3>
+          <p>{{ curso.descricao }}</p>
+          <div class="meta">
+            <span>&#128218; {{ curso.modulos.count }} módulo{{ curso.modulos.count|pluralize }}</span>
+            <span>&#9201; {{ curso.carga_horaria }}h</span>
+            <span>&#9733; Mín. {{ curso.nota_minima }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <h3>Nenhum curso cadastrado ainda</h3>
+      <p>Acesse o painel admin para criar o primeiro curso.</p>
+      <a href="/admin/courses/curso/add/">Criar curso</a>
+    </div>
+  {% endif %}
+</div>
+
+</body>
+</html>

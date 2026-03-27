@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ modulo_ativo.titulo }} · {{ curso.titulo }}{% endblock %}
+
+{% block sidebar %}{% include "courses/_sidebar.html" %}{% endblock %}
+
+{% block breadcrumb %}
+  <a href="{% url 'courses:curso_detail' curso.pk %}">{{ curso.titulo }}</a>
+  › Módulo {{ modulo_ativo.ordem }}: {{ modulo_ativo.titulo }}
+{% endblock %}
+
+{% block content %}
+  <span class="badge">Módulo {{ modulo_ativo.ordem }}</span>
+  <h1>{{ modulo_ativo.titulo }}</h1>
+  <h3>{{ modulo_ativo.aulas.count }} aula{{ modulo_ativo.aulas.count|pluralize }}</h3>
+
+  {% with aulas=modulo_ativo.aulas.all %}
+  {% if aulas %}
+    <div style="display:flex;flex-direction:column;gap:8px;margin-top:24px;">
+      {% for aula in aulas %}
+        <a href="{% url 'courses:aula_detail' curso.pk modulo_ativo.pk aula.pk %}"
+           style="display:flex;align-items:center;gap:12px;padding:14px 18px;
+                  background:#fff;border:1px solid #e5e7eb;border-radius:10px;
+                  text-decoration:none;color:#111827;transition:box-shadow 0.15s;"
+           onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'"
+           onmouseout="this.style.boxShadow='none'">
+          <span style="width:28px;height:28px;border-radius:50%;background:#ede9fe;
+                       color:#4f46e5;font-size:0.75rem;font-weight:700;display:flex;
+                       align-items:center;justify-content:center;flex-shrink:0;">
+            {{ aula.ordem }}
+          </span>
+          <span style="flex:1;font-size:0.9rem;">{{ aula.titulo }}</span>
+          <span style="font-size:0.78rem;color:#9ca3af;">{{ aula.duracao }} min</span>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="nav-aulas">
+      <a href="{% url 'courses:aula_detail' curso.pk modulo_ativo.pk aulas.0.pk %}" class="btn primary">
+        Iniciar módulo
+      </a>
+    </div>
+  {% else %}
+    <p style="color:#9ca3af;margin-top:16px;">Nenhuma aula cadastrada neste módulo ainda.</p>
+  {% endif %}
+  {% endwith %}
+{% endblock %}
