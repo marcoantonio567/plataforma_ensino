@@ -9,6 +9,8 @@
 {% endblock %}
 
 {% block content %}
+  <a href="{% url 'courses:home' %}" class="btn" style="margin-bottom:24px;display:inline-flex;align-items:center;gap:6px;">&#8592; Todos os cursos</a>
+
   <span class="badge">Curso</span>
   <h1>{{ curso.nome }}</h1>
   <h3>{{ curso.modulos.count }} módulo{{ curso.modulos.count|pluralize }} &nbsp;·&nbsp; {{ curso.carga_horaria }}h de carga horária</h3>

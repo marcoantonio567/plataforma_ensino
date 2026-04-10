@@ -10,6 +10,8 @@
 {% endblock %}
 
 {% block content %}
+  <a href="{% url 'courses:home' %}" class="btn" style="margin-bottom:24px;display:inline-flex;align-items:center;gap:6px;">&#8592; Todos os cursos</a>
+
   <span class="badge">Módulo {{ modulo_ativo.ordem }}</span>
   <h1>{{ modulo_ativo.nome }}</h1>
   <h3>{{ modulo_ativo.aulas.count }} aula{{ modulo_ativo.aulas.count|pluralize }}</h3>
