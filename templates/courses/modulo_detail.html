@@ -1,17 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %}{{ modulo_ativo.titulo }} · {{ curso.titulo }}{% endblock %}
+{% block title %}{{ modulo_ativo.nome }} · {{ curso.nome }}{% endblock %}
 
 {% block sidebar %}{% include "courses/_sidebar.html" %}{% endblock %}
 
 {% block breadcrumb %}
-  <a href="{% url 'courses:curso_detail' curso.pk %}">{{ curso.titulo }}</a>
-  › Módulo {{ modulo_ativo.ordem }}: {{ modulo_ativo.titulo }}
+  <a href="{% url 'courses:curso_detail' curso.pk %}">{{ curso.nome }}</a>
+  › Módulo {{ modulo_ativo.ordem }}: {{ modulo_ativo.nome }}
 {% endblock %}
 
 {% block content %}
   <span class="badge">Módulo {{ modulo_ativo.ordem }}</span>
-  <h1>{{ modulo_ativo.titulo }}</h1>
+  <h1>{{ modulo_ativo.nome }}</h1>
   <h3>{{ modulo_ativo.aulas.count }} aula{{ modulo_ativo.aulas.count|pluralize }}</h3>
 
   {% with aulas=modulo_ativo.aulas.all %}

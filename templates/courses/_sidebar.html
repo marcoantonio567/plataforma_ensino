@@ -1,7 +1,7 @@
 <aside class="sidebar">
   <div class="sidebar-header">
     <p class="course-title">Curso</p>
-    <h2>{{ curso.titulo }}</h2>
+    <h2>{{ curso.nome }}</h2>
   </div>
 
   <nav class="sidebar-nav">
@@ -13,7 +13,7 @@
           <span class="modulo-num">{{ modulo.ordem }}</span>
           <a href="{% url 'courses:modulo_detail' curso.pk modulo.pk %}"
              style="color:inherit;text-decoration:none;flex:1;">
-            {{ modulo.titulo }}
+            {{ modulo.nome }}
           </a>
           {% if modulo.aulas.count %}
             <span class="arrow">&#9654;</span>

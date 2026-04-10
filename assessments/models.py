@@ -1,5 +1,4 @@
 from django.db import models
-from courses.models import Modulo, Curso
 
 
 class Avaliacao(models.Model):
@@ -9,30 +8,66 @@ class Avaliacao(models.Model):
         PROJETO_PRATICO = "PROJETO_PRATICO", "Projeto Prático"
         PROVA_MONITORADA = "PROVA_MONITORADA", "Prova com Monitoramento Remoto"
 
-    modulo = models.ForeignKey(Modulo, on_delete=models.CASCADE, related_name="avaliacoes")
-    titulo = models.CharField(max_length=200)
+    modulo = models.ForeignKey(
+        "courses.Modulo", on_delete=models.CASCADE, related_name="avaliacoes"
+    )
     tipo = models.CharField(max_length=20, choices=Tipo.choices)
-    peso = models.DecimalField(max_digits=4, decimal_places=2, default=1.0)
-    nota_maxima = models.DecimalField(max_digits=4, decimal_places=2, default=10.0)
+    peso = models.FloatField(default=1.0)
 
     class Meta:
         verbose_name = "Avaliação"
         verbose_name_plural = "Avaliações"
 
     def __str__(self):
-        return f"[{self.get_tipo_display()}] {self.titulo}"
+        return f"[{self.get_tipo_display()}] — {self.modulo}"
 
 
-class TrabalhoPratico(models.Model):
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="trabalhos_praticos")
-    titulo = models.CharField(max_length=200)
-    descricao = models.TextField()
-    prazo = models.DateField()
-    nota_maxima = models.DecimalField(max_digits=4, decimal_places=2, default=10.0)
+class AvaliacaoObjetiva(Avaliacao):
+    questoes = models.JSONField(default=list, help_text="Lista de questões objetivas")
 
     class Meta:
-        verbose_name = "Trabalho Prático"
-        verbose_name_plural = "Trabalhos Práticos"
+        verbose_name = "Avaliação Objetiva"
+        verbose_name_plural = "Avaliações Objetivas"
+
+
+class AvaliacaoDiscursiva(Avaliacao):
+    descricao = models.TextField()
+
+    class Meta:
+        verbose_name = "Avaliação Discursiva"
+        verbose_name_plural = "Avaliações Discursivas"
+
+
+class ProjetoPratico(Avaliacao):
+    repositorio = models.URLField(blank=True)
+
+    class Meta:
+        verbose_name = "Projeto Prático"
+        verbose_name_plural = "Projetos Práticos"
+
+
+class ProvaMonitorada(Avaliacao):
+    monitoramento_ativo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Prova Monitorada"
+        verbose_name_plural = "Provas Monitoradas"
+
+
+class AvaliacaoRealizada(models.Model):
+    aluno = models.ForeignKey(
+        "students.Aluno", on_delete=models.CASCADE, related_name="avaliacoes_realizadas"
+    )
+    avaliacao = models.ForeignKey(
+        Avaliacao, on_delete=models.CASCADE, related_name="realizacoes"
+    )
+    nota = models.FloatField()
+    data = models.DateField()
+
+    class Meta:
+        verbose_name = "Avaliação Realizada"
+        verbose_name_plural = "Avaliações Realizadas"
+        unique_together = ("aluno", "avaliacao")
 
     def __str__(self):
-        return f"{self.titulo} ({self.curso})"
+        return f"{self.aluno} — {self.avaliacao}: {self.nota}"

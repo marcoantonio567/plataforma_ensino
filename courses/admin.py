@@ -1,5 +1,10 @@
 from django.contrib import admin
-from .models import Curso, Modulo, Aula, PreRequisito
+from .models import Curso, RegraCurso, Modulo, Aula, PreRequisito
+
+
+class PreRequisitoInline(admin.TabularInline):
+    model = PreRequisito
+    extra = 1
 
 
 class ModuloInline(admin.TabularInline):
@@ -7,16 +12,15 @@ class ModuloInline(admin.TabularInline):
     extra = 1
 
 
-class PreRequisitoInline(admin.TabularInline):
-    model = PreRequisito
-    fk_name = "curso"
-    extra = 1
-
-
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "carga_horaria", "nota_minima")
+    list_display = ("nome", "carga_horaria")
     inlines = [PreRequisitoInline, ModuloInline]
+
+
+@admin.register(RegraCurso)
+class RegraCursoAdmin(admin.ModelAdmin):
+    list_display = ("data_inicio", "data_fim", "media_minima", "carga_horaria_minima", "exige_projeto_final")
 
 
 class AulaInline(admin.TabularInline):
@@ -26,7 +30,7 @@ class AulaInline(admin.TabularInline):
 
 @admin.register(Modulo)
 class ModuloAdmin(admin.ModelAdmin):
-    list_display = ("titulo", "curso", "ordem")
+    list_display = ("nome", "curso", "ordem")
     inlines = [AulaInline]
 
 

@@ -161,12 +161,10 @@
       {% for curso in cursos %}
         <a href="{% url 'courses:curso_detail' curso.pk %}" class="curso-card">
           <span class="badge">Curso</span>
-          <h3>{{ curso.titulo }}</h3>
-          <p>{{ curso.descricao }}</p>
+          <h3>{{ curso.nome }}</h3>
           <div class="meta">
             <span>&#128218; {{ curso.modulos.count }} módulo{{ curso.modulos.count|pluralize }}</span>
             <span>&#9201; {{ curso.carga_horaria }}h</span>
-            <span>&#9733; Mín. {{ curso.nota_minima }}</span>
           </div>
         </a>
       {% endfor %}

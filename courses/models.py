@@ -1,48 +1,44 @@
 from django.db import models
 
 
+class TipoPreRequisito(models.TextChoices):
+    CURSO = "CURSO", "Curso"
+    MODULO = "MODULO", "Módulo"
+
+
 class Curso(models.Model):
-    titulo = models.CharField(max_length=200)
-    descricao = models.TextField()
+    nome = models.CharField(max_length=200)
     carga_horaria = models.PositiveIntegerField(help_text="Em horas")
-    nota_minima = models.DecimalField(max_digits=4, decimal_places=2, default=6.0)
-    pre_requisitos = models.ManyToManyField(
-        "self",
-        through="PreRequisito",
-        symmetrical=False,
-        related_name="requerido_por",
-        blank=True,
-    )
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Curso"
         verbose_name_plural = "Cursos"
-        ordering = ["titulo"]
+        ordering = ["nome"]
 
     def __str__(self):
-        return self.titulo
+        return self.nome
 
 
-class PreRequisito(models.Model):
-    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="requisitos")
-    curso_requerido = models.ForeignKey(
-        Curso, on_delete=models.CASCADE, related_name="exigido_por"
-    )
+class RegraCurso(models.Model):
+    media_minima = models.FloatField(default=6.0)
+    carga_horaria_minima = models.PositiveIntegerField(default=0, help_text="Em horas")
+    exige_projeto_final = models.BooleanField(default=False)
+    data_inicio = models.DateField()
+    data_fim = models.DateField(null=True, blank=True)
 
     class Meta:
-        verbose_name = "Pré-requisito"
-        verbose_name_plural = "Pré-requisitos"
-        unique_together = ("curso", "curso_requerido")
+        verbose_name = "Regra de Curso"
+        verbose_name_plural = "Regras de Curso"
 
     def __str__(self):
-        return f"{self.curso_requerido} → {self.curso}"
+        return f"Regra (início: {self.data_inicio})"
 
 
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="modulos")
-    titulo = models.CharField(max_length=200)
+    nome = models.CharField(max_length=200)
     ordem = models.PositiveIntegerField()
 
     class Meta:
@@ -52,7 +48,7 @@ class Modulo(models.Model):
         unique_together = ("curso", "ordem")
 
     def __str__(self):
-        return f"{self.curso} — Módulo {self.ordem}: {self.titulo}"
+        return f"{self.curso} — Módulo {self.ordem}: {self.nome}"
 
 
 class Aula(models.Model):
@@ -70,3 +66,16 @@ class Aula(models.Model):
 
     def __str__(self):
         return f"{self.modulo} — Aula {self.ordem}: {self.titulo}"
+
+
+class PreRequisito(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="pre_requisitos")
+    tipo = models.CharField(max_length=10, choices=TipoPreRequisito.choices)
+    referencia_id = models.PositiveIntegerField(help_text="ID do Curso ou Módulo exigido")
+
+    class Meta:
+        verbose_name = "Pré-requisito"
+        verbose_name_plural = "Pré-requisitos"
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} #{self.referencia_id} → {self.curso}"

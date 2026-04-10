@@ -4,11 +4,11 @@ from .models import Certificado, IncidenteIntegridade
 
 @admin.register(IncidenteIntegridade)
 class IncidenteIntegridadeAdmin(admin.ModelAdmin):
-    list_display = ("matricula", "gravidade", "status", "registrado_em")
-    list_filter = ("gravidade", "status")
+    list_display = ("matricula", "tipo", "data")
+    list_filter = ("tipo",)
 
 
 @admin.register(Certificado)
 class CertificadoAdmin(admin.ModelAdmin):
-    list_display = ("aluno", "curso", "data_emissao", "validade", "e_vitalicio")
-    readonly_fields = ("codigo_verificacao",)
+    list_display = ("matricula", "data_emissao", "validade", "status")
+    list_filter = ("status",)
