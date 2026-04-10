@@ -139,14 +139,49 @@
       font-size: 0.875rem;
       font-weight: 500;
     }
+
+    .header-auth { display: flex; align-items: center; gap: 20px; }
+    .header-auth .username { font-size: 0.8rem; color: #a5b4fc; }
+
+    .messages-home {
+      padding: 12px 48px 0;
+    }
+
+    .message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.825rem;
+      margin-bottom: 8px;
+    }
+
+    .message.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+    .message.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
   </style>
 </head>
 <body>
 
 <header>
   <h1>Plataforma de Ensino</h1>
-  <a href="{% url 'courses:criar_curso' %}">+ Novo curso</a>
+  <div class="header-auth">
+    <a href="{% url 'courses:criar_curso' %}">+ Novo curso</a>
+    {% if request.user.is_authenticated %}
+      <span class="username">{{ request.user.username }}</span>
+      <a href="{% url 'students:minhas_matriculas' %}">Minhas Matrículas</a>
+      <a href="{% url 'students:logout' %}">Sair</a>
+    {% else %}
+      <a href="{% url 'students:login' %}">Entrar</a>
+      <a href="{% url 'students:registro' %}">Criar conta</a>
+    {% endif %}
+  </div>
 </header>
+
+{% if messages %}
+  <div class="messages-home">
+    {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
 
 <div class="hero">
   <h2>Bem-vindo à Plataforma</h2>

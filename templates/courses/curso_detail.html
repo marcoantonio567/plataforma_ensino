@@ -20,10 +20,59 @@
     <span class="meta-item">&#9201; {{ curso.carga_horaria }}h</span>
   </div>
 
-  {% if modulo_ativo %}
-    <div class="nav-aulas" style="margin-top:32px;">
+  {# ── Bloco de matrícula ── #}
+  <div style="margin-top:32px; padding:24px; background:#f8f8ff; border:1px solid #e0e0f0; border-radius:12px; max-width:480px;">
+    {% if not request.user.is_authenticated %}
+      <p style="font-size:0.9rem; color:#374151; margin-bottom:14px;">
+        Faça login para se matricular neste curso.
+      </p>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{% url 'students:login' %}?next={{ request.path }}" class="btn primary">Entrar</a>
+        <a href="{% url 'students:registro' %}" class="btn">Criar conta</a>
+      </div>
+
+    {% elif matricula and matricula.status != "CANCELADA" %}
+      <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:999px; font-size:0.75rem; font-weight:600; text-transform:uppercase;
+          {% if matricula.status == 'ATIVA' %}background:#dcfce7; color:#16a34a;
+          {% elif matricula.status == 'CONCLUIDA' %}background:#ede9fe; color:#7c3aed;
+          {% else %}background:#fef9c3; color:#a16207;{% endif %}">
+          &#10003; {{ matricula.get_status_display }}
+        </span>
+        <span style="font-size:0.825rem; color:#6b7280;">desde {{ matricula.data_matricula|date:"d/m/Y" }}</span>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{% url 'students:minhas_matriculas' %}" class="btn primary">Minhas Matrículas</a>
+        {% if modulo_ativo %}
+          <a href="{% url 'courses:modulo_detail' curso.pk modulo_ativo.pk %}" class="btn">
+            Começar → Módulo {{ modulo_ativo.ordem }}
+          </a>
+        {% endif %}
+      </div>
+
+    {% else %}
+      <p style="font-size:0.9rem; color:#374151; margin-bottom:14px;">
+        Matricule-se gratuitamente para acompanhar seu progresso.
+      </p>
+      <form method="post" action="{% url 'students:matricular_curso' curso.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="btn primary" style="cursor:pointer; border:none; font-family:inherit;">
+          Matricular-se neste curso
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if matricula and matricula.status == "ATIVA" and modulo_ativo %}
+    <div class="nav-aulas" style="margin-top:24px;">
       <a href="{% url 'courses:modulo_detail' curso.pk modulo_ativo.pk %}" class="btn primary">
         Começar → Módulo {{ modulo_ativo.ordem }}
+      </a>
+    </div>
+  {% elif not matricula and modulo_ativo %}
+    <div class="nav-aulas" style="margin-top:24px;">
+      <a href="{% url 'courses:modulo_detail' curso.pk modulo_ativo.pk %}" class="btn" style="color:#9ca3af;">
+        Pré-visualizar conteúdo
       </a>
     </div>
   {% endif %}

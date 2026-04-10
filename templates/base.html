@@ -158,10 +158,34 @@
       padding: 14px 32px;
       font-size: 0.85rem;
       color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .topbar a { color: #4f46e5; text-decoration: none; }
     .topbar a:hover { text-decoration: underline; }
+
+    .topbar-auth { display: flex; align-items: center; gap: 16px; }
+    .topbar-auth .username { color: #374151; font-weight: 500; font-size: 0.8rem; }
+
+    .messages-area {
+      padding: 12px 32px 0;
+    }
+
+    .message {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.825rem;
+      margin-bottom: 8px;
+    }
+
+    .message.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+    .message.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+    .message.warning { background: #fefce8; border: 1px solid #fde68a; color: #92400e; }
+    .message.error   { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; }
 
     .content {
       padding: 40px 48px;
@@ -229,8 +253,25 @@
 
 <div class="main">
   <div class="topbar">
-    {% block breadcrumb %}Plataforma de Ensino{% endblock %}
+    <div>{% block breadcrumb %}Plataforma de Ensino{% endblock %}</div>
+    <div class="topbar-auth">
+      {% if request.user.is_authenticated %}
+        <span class="username">{{ request.user.username }}</span>
+        <a href="{% url 'students:minhas_matriculas' %}">Minhas Matrículas</a>
+        <a href="{% url 'students:logout' %}">Sair</a>
+      {% else %}
+        <a href="{% url 'students:login' %}">Entrar</a>
+        <a href="{% url 'students:registro' %}">Criar conta</a>
+      {% endif %}
+    </div>
   </div>
+  {% if messages %}
+    <div class="messages-area">
+      {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
   <div class="content">
     {% block content %}{% endblock %}
   </div>

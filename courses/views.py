@@ -13,9 +13,21 @@ def home(request):
 def curso_detail(request, curso_id):
     curso = get_object_or_404(Curso.objects.prefetch_related("modulos__aulas"), pk=curso_id)
     primeiro_modulo = curso.modulos.first()
+
+    matricula = None
+    if request.user.is_authenticated:
+        try:
+            from students.models import Matricula
+            matricula = Matricula.objects.filter(
+                aluno=request.user.aluno, curso=curso
+            ).first()
+        except Exception:
+            pass
+
     return render(request, "courses/curso_detail.html", {
         "curso": curso,
         "modulo_ativo": primeiro_modulo,
+        "matricula": matricula,
     })
 
 

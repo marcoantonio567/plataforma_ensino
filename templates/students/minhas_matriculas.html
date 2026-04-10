@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minhas Matrículas — Plataforma de Ensino</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #e2e8f0;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+
+    .header-actions { display: flex; align-items: center; gap: 20px; }
+
+    .header-actions .username {
+      font-size: 0.825rem;
+      color: #a5b4fc;
+    }
+
+    .header-actions a {
+      color: #818cf8;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    .header-actions a:hover { text-decoration: underline; }
+
+    .messages {
+      padding: 0 48px;
+      margin-top: 16px;
+    }
+
+    .message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 8px;
+    }
+
+    .message.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+    .message.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .page-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover { background: #f3f4f6; }
+    .btn.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    .btn.primary:hover { background: #4338ca; }
+    .btn.danger { background: #fff; color: #dc2626; border-color: #fca5a5; }
+    .btn.danger:hover { background: #fef2f2; }
+
+    .empty {
+      text-align: center;
+      padding: 64px 0;
+      color: #9ca3af;
+    }
+
+    .empty h3 { font-size: 1.1rem; margin-bottom: 8px; color: #6b7280; }
+    .empty p { font-size: 0.875rem; margin-bottom: 24px; }
+
+    .matriculas-list { display: flex; flex-direction: column; gap: 16px; }
+
+    .matricula-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .matricula-info { flex: 1; min-width: 0; }
+
+    .matricula-info .curso-nome {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .matricula-meta {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .matricula-meta span {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .status-badge.ATIVA { background: #dcfce7; color: #16a34a; }
+    .status-badge.TRANCADA { background: #fef9c3; color: #a16207; }
+    .status-badge.CONCLUIDA { background: #ede9fe; color: #7c3aed; }
+    .status-badge.CANCELADA { background: #f3f4f6; color: #6b7280; }
+
+    .progresso-bar {
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      width: 120px;
+      flex-shrink: 0;
+    }
+
+    .progresso-fill {
+      height: 100%;
+      background: #4f46e5;
+      border-radius: 999px;
+      transition: width 0.3s;
+    }
+
+    .matricula-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Plataforma de Ensino</h1>
+  <div class="header-actions">
+    <span class="username">{{ request.user.username }}</span>
+    <a href="/">Ver cursos</a>
+    <a href="{% url 'students:logout' %}">Sair</a>
+  </div>
+</header>
+
+{% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<div class="container">
+  <div class="page-header">
+    <h2>Minhas Matrículas</h2>
+    <a href="/" class="btn">&#128218; Explorar cursos</a>
+  </div>
+
+  {% if matriculas %}
+    <div class="matriculas-list">
+      {% for matricula in matriculas %}
+        {% if matricula.status != "CANCELADA" %}
+          <div class="matricula-card">
+            <div class="matricula-info">
+              <div class="curso-nome">{{ matricula.curso.nome }}</div>
+              <div class="matricula-meta">
+                <span class="status-badge {{ matricula.status }}">{{ matricula.get_status_display }}</span>
+                <span>&#128197; Desde {{ matricula.data_matricula|date:"d/m/Y" }}</span>
+                <span>&#9201; {{ matricula.curso.carga_horaria }}h</span>
+                {% if matricula.progresso > 0 %}
+                  <span>{{ matricula.progresso|floatformat:0 }}% concluído</span>
+                {% endif %}
+              </div>
+            </div>
+
+            {% if matricula.progresso > 0 %}
+              <div class="progresso-bar">
+                <div class="progresso-fill" style="width: {{ matricula.progresso }}%;"></div>
+              </div>
+            {% endif %}
+
+            <div class="matricula-actions">
+              <a href="{% url 'courses:curso_detail' matricula.curso.pk %}" class="btn primary">
+                Acessar →
+              </a>
+              {% if matricula.status == "ATIVA" %}
+                <form method="post" action="{% url 'students:cancelar_matricula' matricula.pk %}"
+                      onsubmit="return confirm('Cancelar matrícula em {{ matricula.curso.nome }}?');">
+                  {% csrf_token %}
+                  <button type="submit" class="btn danger">Cancelar</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      {% with canceladas=matriculas|dictsort:"data_matricula" %}
+        {% for matricula in matriculas %}
+          {% if matricula.status == "CANCELADA" %}
+            <div class="matricula-card" style="opacity: 0.6;">
+              <div class="matricula-info">
+                <div class="curso-nome">{{ matricula.curso.nome }}</div>
+                <div class="matricula-meta">
+                  <span class="status-badge CANCELADA">Cancelada</span>
+                  <span>&#128197; {{ matricula.data_matricula|date:"d/m/Y" }}</span>
+                </div>
+              </div>
+              <div class="matricula-actions">
+                <form method="post" action="{% url 'students:matricular_curso' matricula.curso.pk %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn">Rematricular</button>
+                </form>
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+      {% endwith %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <h3>Nenhuma matrícula ainda</h3>
+      <p>Explore os cursos disponíveis e matricule-se para começar a aprender.</p>
+      <a href="/" class="btn primary">Explorar cursos</a>
+    </div>
+  {% endif %}
+</div>
+
+</body>
+</html>
