@@ -6,9 +6,8 @@
 
   <nav class="sidebar-nav">
     {% for modulo in curso.modulos.all %}
-      {% with is_active=modulo.pk|stringformat:"s" == modulo_ativo.pk|stringformat:"s" %}
       <div class="modulo-item">
-        <button class="modulo-toggle {% if is_active %}active{% endif %}"
+        <button class="modulo-toggle {% if modulo.pk == modulo_ativo.pk %}active{% endif %}"
                 data-modulo="{{ modulo.pk }}">
           <span class="modulo-num">{{ modulo.ordem }}</span>
           <a href="{% url 'courses:modulo_detail' curso.pk modulo.pk %}"
@@ -20,7 +19,7 @@
           {% endif %}
         </button>
 
-        <div class="aulas-list {% if is_active %}open{% endif %}">
+        <div class="aulas-list {% if modulo.pk == modulo_ativo.pk %}open{% endif %}">
           {% for aula in modulo.aulas.all %}
             <a href="{% url 'courses:aula_detail' curso.pk modulo.pk aula.pk %}"
                class="aula-link {% if aula_ativa.pk == aula.pk %}active{% endif %}">
@@ -29,7 +28,6 @@
           {% endfor %}
         </div>
       </div>
-      {% endwith %}
     {% endfor %}
   </nav>
 </aside>

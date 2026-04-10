@@ -145,7 +145,7 @@
 
 <header>
   <h1>Plataforma de Ensino</h1>
-  <a href="/admin/">Admin</a>
+  <a href="{% url 'courses:criar_curso' %}">+ Novo curso</a>
 </header>
 
 <div class="hero">
@@ -172,8 +172,8 @@
   {% else %}
     <div class="empty">
       <h3>Nenhum curso cadastrado ainda</h3>
-      <p>Acesse o painel admin para criar o primeiro curso.</p>
-      <a href="/admin/courses/curso/add/">Criar curso</a>
+      <p>Crie o primeiro curso para começar.</p>
+      <a href="{% url 'courses:criar_curso' %}">Criar curso</a>
     </div>
   {% endif %}
 </div>

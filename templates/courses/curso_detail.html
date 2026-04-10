@@ -5,7 +5,7 @@
 {% block sidebar %}{% include "courses/_sidebar.html" %}{% endblock %}
 
 {% block breadcrumb %}
-  <a href="#">Cursos</a> › {{ curso.nome }}
+  <a href="{% url 'courses:home' %}">Cursos</a> › {{ curso.nome }}
 {% endblock %}
 
 {% block content %}

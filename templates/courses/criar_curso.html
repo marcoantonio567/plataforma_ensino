@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novo Curso — Plataforma de Ensino</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #e2e8f0;
+      padding: 24px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 { font-size: 1.25rem; font-weight: 600; }
+
+    header a {
+      color: #818cf8;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    header a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 32px;
+    }
+
+    .back-link:hover { color: #4f46e5; }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: #6b7280;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 32px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .field input,
+    .field textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      color: #111827;
+      background: #fff;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      outline: none;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .field .error {
+      font-size: 0.8rem;
+      color: #dc2626;
+      margin-top: 4px;
+    }
+
+    .field .help {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn:hover { background: #f3f4f6; }
+
+    .btn.primary {
+      background: #4f46e5;
+      color: #fff;
+      border-color: #4f46e5;
+    }
+
+    .btn.primary:hover { background: #4338ca; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Plataforma de Ensino</h1>
+  <a href="{% url 'courses:home' %}">&#8592; Voltar para cursos</a>
+</header>
+
+<div class="container">
+  <a href="{% url 'courses:home' %}" class="back-link">&#8592; Todos os cursos</a>
+
+  <h1 class="page-title">Novo curso</h1>
+  <p class="page-subtitle">Preencha as informações básicas. Você poderá adicionar módulos e aulas a seguir.</p>
+
+  <div class="card">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="field">
+        <label for="{{ form.nome.id_for_label }}">{{ form.nome.label }}</label>
+        {{ form.nome }}
+        {% if form.nome.errors %}
+          {% for error in form.nome.errors %}
+            <p class="error">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="field">
+        <label for="{{ form.carga_horaria.id_for_label }}">{{ form.carga_horaria.label }}</label>
+        {{ form.carga_horaria }}
+        <p class="help">Total de horas do curso</p>
+        {% if form.carga_horaria.errors %}
+          {% for error in form.carga_horaria.errors %}
+            <p class="error">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn primary">Criar curso</button>
+        <a href="{% url 'courses:home' %}" class="btn">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+</body>
+</html>
