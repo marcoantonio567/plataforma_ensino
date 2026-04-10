@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(find courses:*)",
-      "Bash(python manage.py makemigrations)",
-      "Bash(wc -l /c/Users/marco/Desktop/plataforma_ensino/plataforma_ensino/*/models.py /c/Users/marco/Desktop/plataforma_ensino/plataforma_ensino/*/views.py /c/Users/marco/Desktop/plataforma_ensino/plataforma_ensino/*/admin.py)"
-    ]
-  }
-}
