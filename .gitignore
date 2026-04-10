@@ -36,3 +36,7 @@ Thumbs.db
 
 #aocumentation
 documents/
+
+#ai_models/
+.claude/
+.claude/settings.local.json
