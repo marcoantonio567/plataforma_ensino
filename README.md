@@ -1,286 +1,297 @@
-# Plataforma de Ensino
+# Teaching Platform
 
-Sistema de gerenciamento de cursos e aprendizado online desenvolvido com Django. A plataforma oferece uma estrutura completa para criação e navegação de cursos, com suporte a avaliações, gestão de alunos e emissão de certificados.
+An online course management and e-learning system built with Django. The platform provides a complete structure for course creation and navigation, with support for assessments, student management, and certificate issuance. 
 
-## Tecnologias
+## Technologies
 
-- **Backend**: Django 6.0.3
-- **Banco de dados**: SQLite
-- **Frontend**: HTML5/CSS3 (templates Django)
-- **Idioma**: Português (Brasil)
-- **Fuso horário**: America/Sao_Paulo
+* **Backend**: Django 6.0.3
+* **Database**: SQLite
+* **Frontend**: HTML5/CSS3 (Django templates)
+* **Language**: Portuguese (Brazil)
+* **Timezone**: America/Sao_Paulo
 
-## Funcionalidades
+## Features
 
-### Implementadas
-- Listagem de cursos na página inicial
-- Navegação hierárquica: Curso → Módulo → Aula
-- Sidebar com navegação por módulos e aulas
-- Navegação entre aulas (anterior/próxima)
-- Painel administrativo completo via Django Admin
+### Implemented
 
-### Modeladas (em desenvolvimento)
-- **Avaliações**: provas objetivas, discursivas, projetos práticos e provas monitoradas
-- **Alunos**: matrículas, aproveitamento de disciplinas, segunda chamada, revisão de notas
-- **Certificações**: emissão de certificados digitais com UUID de verificação e controle de validade
-- **Integridade acadêmica**: registro e gestão de incidentes
+* Course listing on the homepage
+* Hierarchical navigation: Course → Module → Lesson
+* Sidebar navigation for modules and lessons
+* Navigation between lessons (previous/next)
+* Full administrative panel via Django Admin
+
+### Modeled (In Development)
+
+* **Assessments**: multiple-choice exams, essay exams, practical projects, and proctored exams
+* **Students**: enrollments, subject credit transfers, makeup exams, grade review requests
+* **Certifications**: digital certificate issuance with UUID verification and validity control
+* **Academic Integrity**: incident tracking and management
 
 ---
 
-## Estrutura de Pastas
+## Project Structure
 
+```text
+teaching_platform/                  # Project root
+├── manage.py                       # Django CLI (runserver, migrate, etc.)
+├── requirements.txt                # Python project dependencies
+├── db.sqlite3                      # SQLite database
+├── .gitignore                      # Git ignored files
+├── README.md                       # Project documentation
+│
+├── teaching_platform/              # Django project configuration package
+│   ├── __init__.py
+│   ├── settings.py                 # Global settings (database, apps, language, etc.)
+│   ├── urls.py                     # Root routing (admin + courses)
+│   ├── wsgi.py                     # Entry point for WSGI servers (production)
+│   └── asgi.py                     # Entry point for ASGI servers (async)
+│
+├── courses/                        # Courses app — only app with implemented views
+│   ├── __init__.py
+│   ├── apps.py                     # App configuration (CoursesConfig)
+│   ├── models.py                   # Models: Course, Module, Lesson, CourseRule, Prerequisite
+│   ├── views.py                    # Views: home, course_detail, module_detail, lesson_detail
+│   ├── urls.py                     # Courses app routes
+│   ├── admin.py                    # Model registration in admin panel
+│   ├── tests.py                    # Tests (empty)
+│   └── migrations/
+│       ├── __init__.py
+│       └── 0001_initial.py         # Creation of course tables
+│
+├── assessments/                    # Assessments app — models ready, views empty
+│   ├── __init__.py
+│   ├── apps.py                     # App configuration (AssessmentsConfig)
+│   ├── models.py                   # Models: Assessment, ObjectiveAssessment, EssayAssessment,
+│   │                               #          PracticalProject, ProctoredExam, CompletedAssessment
+│   ├── views.py                    # Views (empty — in development)
+│   ├── admin.py                    # Model registration in admin panel
+│   ├── tests.py                    # Tests (empty)
+│   └── migrations/
+│       ├── __init__.py
+│       ├── 0001_initial.py         # Creation of base Assessment table
+│       └── 0002_initial.py         # Creation of child types and CompletedAssessment
+│
+├── students/                       # Students app — models ready, views empty
+│   ├── __init__.py
+│   ├── apps.py                     # App configuration (StudentsConfig)
+│   ├── models.py                   # Models: Student, Enrollment, Request, GradeReview,
+│   │                               #          MakeupExam, CreditTransfer, Equivalence
+│   ├── views.py                    # Views (empty — in development)
+│   ├── admin.py                    # Model registration in admin panel
+│   ├── tests.py                    # Tests (empty)
+│   └── migrations/
+│       ├── __init__.py
+│       └── 0001_initial.py         # Creation of all student tables
+│
+├── certifications/                 # Certifications app — models ready, views empty
+│   ├── __init__.py
+│   ├── apps.py                     # App configuration (CertificationsConfig)
+│   ├── models.py                   # Models: Certificate, IntegrityIncident
+│   ├── views.py                    # Views (empty — in development)
+│   ├── admin.py                    # Model registration in admin panel
+│   ├── tests.py                    # Tests (empty)
+│   └── migrations/
+│       ├── __init__.py
+│       └── 0001_initial.py         # Creation of certification tables
+│
+└── templates/                      # Global HTML templates
+    ├── base.html                   # Base template: layout with sidebar + content area
+    └── courses/                    # Templates specific to the courses app
+        ├── home.html               # Homepage — card grid with all courses
+        ├── course_detail.html      # Course details with start button
+        ├── module_detail.html      # Module details with lesson list
+        ├── lesson_detail.html      # Lesson content with previous/next navigation
+        └── _sidebar.html           # Reusable sidebar navigation component
 ```
-plataforma_ensino/                  # Raiz do projeto
-├── manage.py                       # CLI do Django (runserver, migrate, etc.)
-├── requirements.txt                # Dependências Python do projeto
-├── db.sqlite3                      # Banco de dados SQLite
-├── .gitignore                      # Arquivos ignorados pelo Git
-├── README.md                       # Documentação do projeto
-│
-├── plataforma_ensino/              # Pacote de configuração do projeto Django
-│   ├── __init__.py
-│   ├── settings.py                 # Configurações globais (banco, apps, idioma, etc.)
-│   ├── urls.py                     # Roteamento raiz (admin + courses)
-│   ├── wsgi.py                     # Ponto de entrada para servidores WSGI (produção)
-│   └── asgi.py                     # Ponto de entrada para servidores ASGI (async)
-│
-├── courses/                        # App de cursos — única com views implementadas
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (CoursesConfig)
-│   ├── models.py                   # Modelos: Curso, Modulo, Aula, RegraCurso, PreRequisito
-│   ├── views.py                    # Views: home, curso_detail, modulo_detail, aula_detail
-│   ├── urls.py                     # Rotas do app de cursos
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       └── 0001_initial.py         # Criação das tabelas de cursos
-│
-├── assessments/                    # App de avaliações — modelos prontos, views vazias
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (AssessmentsConfig)
-│   ├── models.py                   # Modelos: Avaliacao, AvaliacaoObjetiva, AvaliacaoDiscursiva,
-│   │                               #          ProjetoPratico, ProvaMonitorada, AvaliacaoRealizada
-│   ├── views.py                    # Views (vazio — em desenvolvimento)
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       ├── 0001_initial.py         # Criação da tabela base Avaliacao
-│       └── 0002_initial.py         # Criação dos tipos filhos e AvaliacaoRealizada
-│
-├── students/                       # App de alunos — modelos prontos, views vazias
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (StudentsConfig)
-│   ├── models.py                   # Modelos: Aluno, Matricula, Solicitacao, RevisaoNota,
-│   │                               #          SegundaChamada, Aproveitamento, Equivalencia
-│   ├── views.py                    # Views (vazio — em desenvolvimento)
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       └── 0001_initial.py         # Criação de todas as tabelas de alunos
-│
-├── certifications/                 # App de certificações — modelos prontos, views vazias
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (CertificationsConfig)
-│   ├── models.py                   # Modelos: Certificado, IncidenteIntegridade
-│   ├── views.py                    # Views (vazio — em desenvolvimento)
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       └── 0001_initial.py         # Criação das tabelas de certificações
-│
-└── templates/                      # Templates HTML globais do projeto
-    ├── base.html                   # Template base: layout com sidebar + área de conteúdo
-    └── courses/                    # Templates específicos do app de cursos
-        ├── home.html               # Página inicial — grade de cards com todos os cursos
-        ├── curso_detail.html       # Detalhes de um curso com botão para iniciar
-        ├── modulo_detail.html      # Detalhes de um módulo com lista de aulas
-        ├── aula_detail.html        # Conteúdo de uma aula com navegação anterior/próxima
-        └── _sidebar.html           # Componente reutilizável de navegação lateral
-```
 
 ---
 
-## Descrição dos Apps
+## App Descriptions
 
-### `plataforma_ensino/` — Configuração do Projeto
+### `teaching_platform/` — Project Configuration
 
-Pacote central do Django. Contém as configurações globais e o roteamento raiz.
+Core Django package containing global settings and root routing.
 
-| Arquivo | Função |
-|---------|--------|
-| `settings.py` | Define banco de dados, apps instalados, idioma, fuso horário e diretório de templates |
-| `urls.py` | Mapeia `/admin/` para o painel Django e `/` para as URLs do app `courses` |
-| `wsgi.py` / `asgi.py` | Pontos de entrada para deploy em servidores de produção |
+| File                  | Purpose                                                                      |
+| --------------------- | ---------------------------------------------------------------------------- |
+| `settings.py`         | Defines database, installed apps, language, timezone, and template directory |
+| `urls.py`             | Maps `/admin/` to the Django admin panel and `/` to the `courses` app URLs   |
+| `wsgi.py` / `asgi.py` | Entry points for deployment on production servers                            |
 
 ---
 
-### `courses/` — Gerenciamento de Cursos
+### `courses/` — Course Management
 
-Único app com views e templates implementados. Responsável por toda a navegação de conteúdo.
+The only app with implemented views and templates. Responsible for all content navigation.
 
-**Modelos:**
+**Models:**
 
-| Modelo | Descrição |
-|--------|-----------|
-| `Curso` | Curso com nome, carga horária e timestamps |
-| `Modulo` | Módulo ordenado dentro de um curso |
-| `Aula` | Aula com título, conteúdo, duração e ordem dentro do módulo |
-| `RegraCurso` | Regras de conclusão: média mínima, carga horária mínima, projeto final obrigatório |
-| `PreRequisito` | Pré-requisito de curso ou módulo para matrícula |
+| Model          | Description                                                                |
+| -------------- | -------------------------------------------------------------------------- |
+| `Course`       | Course with name, workload, and timestamps                                 |
+| `Module`       | Ordered module within a course                                             |
+| `Lesson`       | Lesson with title, content, duration, and order within the module          |
+| `CourseRule`   | Completion rules: minimum grade, minimum workload, mandatory final project |
+| `Prerequisite` | Course or module prerequisite for enrollment                               |
 
 **Views:**
 
-| View | Rota | Descrição |
-|------|------|-----------|
-| `home` | `/` | Lista todos os cursos disponíveis |
-| `curso_detail` | `/<curso_id>/` | Exibe detalhes do curso e link para iniciar |
-| `modulo_detail` | `/<curso_id>/modulo/<modulo_id>/` | Lista aulas do módulo |
-| `aula_detail` | `/<curso_id>/modulo/<modulo_id>/aula/<aula_id>/` | Exibe conteúdo da aula com navegação |
+| View            | Route                                                 | Description                             |
+| --------------- | ----------------------------------------------------- | --------------------------------------- |
+| `home`          | `/`                                                   | Lists all available courses             |
+| `course_detail` | `/<course_id>/`                                       | Displays course details and start link  |
+| `module_detail` | `/<course_id>/module/<module_id>/`                    | Lists module lessons                    |
+| `lesson_detail` | `/<course_id>/module/<module_id>/lesson/<lesson_id>/` | Displays lesson content with navigation |
 
 ---
 
-### `assessments/` — Avaliações
+### `assessments/` — Assessments
 
-Modelos prontos para múltiplos tipos de avaliação usando herança de tabelas (multi-table inheritance).
+Models prepared for multiple assessment types using multi-table inheritance.
 
-**Modelos:**
+**Models:**
 
-| Modelo | Descrição |
-|--------|-----------|
-| `Avaliacao` | Avaliação base vinculada a um módulo (tipo + peso) |
-| `AvaliacaoObjetiva` | Prova de múltipla escolha com questões em JSONField |
-| `AvaliacaoDiscursiva` | Prova dissertativa com descrição em texto |
-| `ProjetoPratico` | Projeto com link de repositório opcional |
-| `ProvaMonitorada` | Prova com monitoramento remoto ativo |
-| `AvaliacaoRealizada` | Registro de nota de um aluno em uma avaliação |
-
----
-
-### `students/` — Alunos e Matrículas
-
-Modelos para gerenciar o ciclo de vida acadêmico do aluno, desde a matrícula até solicitações administrativas.
-
-**Modelos:**
-
-| Modelo | Descrição |
-|--------|-----------|
-| `Aluno` | Perfil do aluno vinculado ao `User` do Django (número de matrícula, data de ingresso) |
-| `Matricula` | Matrícula em um curso (status, média final, progresso, carga horária cumprida) |
-| `Aproveitamento` | Solicitação de aproveitamento de disciplina cursada anteriormente |
-| `SegundaChamada` | Solicitação de segunda chamada em uma avaliação |
-| `RevisaoNota` | Recurso de revisão de nota de uma avaliação |
-| `Equivalencia` | Registro de equivalência de disciplina de outra instituição |
-
-O modelo `Aluno` possui métodos para realizar todas as solicitações diretamente: `matricular()`, `trancar_matricula()`, `solicitar_aproveitamento()`, `solicitar_segunda_chamada()` e `solicitar_revisao_nota()`.
+| Model                 | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `Assessment`          | Base assessment linked to a module (type + weight)      |
+| `ObjectiveAssessment` | Multiple-choice exam with questions stored in JSONField |
+| `EssayAssessment`     | Essay exam with text description                        |
+| `PracticalProject`    | Project with optional repository link                   |
+| `ProctoredExam`       | Exam with active remote monitoring                      |
+| `CompletedAssessment` | Record of a student’s grade in an assessment            |
 
 ---
 
-### `certifications/` — Certificações e Integridade Acadêmica
+### `students/` — Students and Enrollments
 
-Modelos para emissão de certificados e registro de incidentes de integridade.
+Models to manage the student academic lifecycle, from enrollment to administrative requests.
 
-**Modelos:**
+**Models:**
 
-| Modelo | Descrição |
-|--------|-----------|
-| `Certificado` | Certificado de conclusão de curso vinculado a uma matrícula (com validade e status) |
-| `IncidenteIntegridade` | Registro de incidente acadêmico (cola, plágio, fraude, outros) |
+| Model            | Description                                                           |
+| ---------------- | --------------------------------------------------------------------- |
+| `Student`        | Student profile linked to Django `User` (student ID, admission date)  |
+| `Enrollment`     | Course enrollment (status, final grade, progress, completed workload) |
+| `CreditTransfer` | Request for previously completed subject credit transfer              |
+| `MakeupExam`     | Makeup exam request                                                   |
+| `GradeReview`    | Grade review request                                                  |
+| `Equivalence`    | Record of subject equivalence from another institution                |
 
-O `Certificado` possui os métodos `revogar()`, `suspender()` e `renovar()` para controle do ciclo de vida.
-
----
-
-### `templates/` — Templates HTML
-
-| Template | Descrição |
-|----------|-----------|
-| `base.html` | Layout base com sidebar escura (280px), barra de breadcrumb e área de conteúdo. Blocos: `title`, `sidebar`, `breadcrumb`, `content` |
-| `courses/home.html` | Página standalone com grid de cards dos cursos (não herda de `base.html`) |
-| `courses/curso_detail.html` | Detalhes do curso; herda de `base.html` |
-| `courses/modulo_detail.html` | Lista de aulas do módulo; herda de `base.html` |
-| `courses/aula_detail.html` | Conteúdo da aula com botões anterior/próxima; herda de `base.html` |
-| `courses/_sidebar.html` | Componente de navegação lateral com módulos e aulas expansíveis (prefixado com `_` por ser parcial) |
+The `Student` model includes methods to perform all requests directly: `enroll()`, `suspend_enrollment()`, `request_credit_transfer()`, `request_makeup_exam()`, and `request_grade_review()`.
 
 ---
 
-## Relações entre os Modelos
+### `certifications/` — Certifications and Academic Integrity
 
-```
-Curso ──< Modulo ──< Aula
+Models for certificate issuance and academic integrity incident tracking.
+
+**Models:**
+
+| Model               | Description                                                                      |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `Certificate`       | Course completion certificate linked to an enrollment (with validity and status) |
+| `IntegrityIncident` | Record of academic incidents (cheating, plagiarism, fraud, others)               |
+
+The `Certificate` model includes the methods `revoke()`, `suspend()`, and `renew()` for lifecycle management.
+
+---
+
+### `templates/` — HTML Templates
+
+| Template                     | Description                                                                                                                  |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `base.html`                  | Base layout with dark sidebar (280px), breadcrumb bar, and content area. Blocks: `title`, `sidebar`, `breadcrumb`, `content` |
+| `courses/home.html`          | Standalone homepage with a course card grid (does not inherit from `base.html`)                                              |
+| `courses/course_detail.html` | Course details; inherits from `base.html`                                                                                    |
+| `courses/module_detail.html` | Module lesson list; inherits from `base.html`                                                                                |
+| `courses/lesson_detail.html` | Lesson content with previous/next buttons; inherits from `base.html`                                                         |
+| `courses/_sidebar.html`      | Sidebar navigation component with expandable modules and lessons (prefixed with `_` because it is a partial template)        |
+
+---
+
+## Model Relationships
+
+```text
+Course ──< Module ──< Lesson
   │           │
-  │           └──< Avaliacao (objetiva / discursiva / projeto / monitorada)
+  │           └──< Assessment (objective / essay / project / proctored)
   │                    │
-  │                    └──< AvaliacaoRealizada >── Aluno
+  │                    └──< CompletedAssessment >── Student
   │
-  └──< PreRequisito
-  └── RegraCurso
+  └──< Prerequisite
+  └── CourseRule
 
-Aluno ──< Matricula >── Curso
+Student ──< Enrollment >── Course
               │
-              ├──< Aproveitamento >── Modulo
-              ├──< SegundaChamada >── Avaliacao
-              ├──< RevisaoNota    >── Avaliacao
-              ├──< Equivalencia
-              ├── Certificado
-              └──< IncidenteIntegridade
+              ├──< CreditTransfer >── Module
+              ├──< MakeupExam >── Assessment
+              ├──< GradeReview >── Assessment
+              ├──< Equivalence
+              ├── Certificate
+              └──< IntegrityIncident
 ```
 
 ---
 
-## Instalação
+## Installation
 
-**Pré-requisitos:** Python 3.12+
+**Requirements:** Python 3.12+
 
 ```bash
-# Clone o repositório
-git clone <url-do-repositorio>
-cd plataforma_ensino
+# Clone the repository
+git clone <repository-url>
+cd teaching_platform
 
-# Crie e ative um ambiente virtual
+# Create and activate a virtual environment
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 
-# Instale as dependências
+# Install dependencies
 pip install -r requirements.txt
 
-# Execute as migrações
+# Run migrations
 python manage.py migrate
 
-# Crie um superusuário
+# Create a superuser
 python manage.py createsuperuser
 
-# Inicie o servidor de desenvolvimento
+# Start the development server
 python manage.py runserver
 ```
 
-Acesse em [http://localhost:8000](http://localhost:8000)
+Access the application at:
 
-O painel administrativo está disponível em [http://localhost:8000/admin](http://localhost:8000/admin)
+```text
+http://localhost:8000
+```
+
+The admin panel is available at:
+
+```text
+http://localhost:8000/admin
+```
 
 ---
 
 ## URLs
 
-| Rota | View | Descrição |
-|------|------|-----------|
-| `/` | `home` | Página inicial com lista de cursos |
-| `/<curso_id>/` | `curso_detail` | Detalhes do curso |
-| `/<curso_id>/modulo/<modulo_id>/` | `modulo_detail` | Detalhes do módulo |
-| `/<curso_id>/modulo/<modulo_id>/aula/<aula_id>/` | `aula_detail` | Conteúdo da aula |
-| `/admin/` | — | Painel administrativo Django |
+| Route                                                 | View            | Description               |
+| ----------------------------------------------------- | --------------- | ------------------------- |
+| `/`                                                   | `home`          | Homepage with course list |
+| `/<course_id>/`                                       | `course_detail` | Course details            |
+| `/<course_id>/module/<module_id>/`                    | `module_detail` | Module details            |
+| `/<course_id>/module/<module_id>/lesson/<lesson_id>/` | `lesson_detail` | Lesson content            |
+| `/admin/`                                             | —               | Django admin panel        |
 
 ---
 
-## Dependências
+## Dependencies
 
-```
+```text
 Django==6.0.3
 asgiref==3.11.1
 sqlparse==0.5.5
 tzdata==2025.3
 ```
+
