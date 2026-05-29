@@ -24,7 +24,7 @@ An online course management and e-learning system built with Django. The platfor
 ### Implemented
 
 * Course listing on the homepage
-* Hierarchical navigation: Curso â†’ Modulo â†’ Aula
+* Hierarchical navigation: Course -> Module -> Lesson
 * Sidebar navigation for modules and lessons
 * Navigation between lessons (previous/next)
 * Full administrative panel via Django Admin
@@ -42,82 +42,82 @@ An online course management and e-learning system built with Django. The platfor
 
 ```text
 plataforma_ensino/                  # Project root
-â”œâ”€â”€ manage.py                       # Django CLI (runserver, migrate, etc.)
-â”œâ”€â”€ requirements.txt                # Python project dependencies
-â”œâ”€â”€ db.sqlite3                      # SQLite database
-â”œâ”€â”€ .gitignore                      # Git ignored files
-â”œâ”€â”€ README.md                       # Project documentation
-â”‚
-â”œâ”€â”€ plataforma_ensino/              # Django project configuration package
-â”‚   â”œâ”€â”€ __init__.py
-â”‚   â”œâ”€â”€ settings.py                 # Global settings (database, apps, language, etc.)
-â”‚   â”œâ”€â”€ urls.py                     # Root routing (admin + courses)
-â”‚   â”œâ”€â”€ wsgi.py                     # Entry point for WSGI servers (production)
-â”‚   â””â”€â”€ asgi.py                     # Entry point for ASGI servers (async)
-â”‚
-â”œâ”€â”€ courses/                        # Courses app â€” only app with implemented views
-â”‚   â”œâ”€â”€ __init__.py
-â”‚   â”œâ”€â”€ apps.py                     # App configuration (CoursesConfig)
-â”‚   â”œâ”€â”€ models.py                   # Models: Curso, Modulo, Aula, RegraCurso, PreRequisito
-â”‚   â”œâ”€â”€ views.py                    # Views: home, curso_detail, modulo_detail, aula_detail
-â”‚   â”œâ”€â”€ urls.py                     # Courses app routes
-â”‚   â”œâ”€â”€ admin.py                    # Model registration in admin panel
-â”‚   â”œâ”€â”€ tests.py                    # Tests (empty)
-â”‚   â””â”€â”€ migrations/
-â”‚       â”œâ”€â”€ __init__.py
-â”‚       â””â”€â”€ 0001_initial.py         # Creation of course tables
-â”‚
-â”œâ”€â”€ assessments/                    # Assessments app â€” models ready, views empty
-â”‚   â”œâ”€â”€ __init__.py
-â”‚   â”œâ”€â”€ apps.py                     # App configuration (AssessmentsConfig)
-â”‚   â”œâ”€â”€ models.py                   # Models: Avaliacao, AvaliacaoObjetiva, AvaliacaoDiscursiva,
-â”‚   â”‚                               #          ProjetoPratico, ProvaMonitorada, AvaliacaoRealizada
-â”‚   â”œâ”€â”€ views.py                    # Views (empty â€” in development)
-â”‚   â”œâ”€â”€ admin.py                    # Model registration in admin panel
-â”‚   â”œâ”€â”€ tests.py                    # Tests (empty)
-â”‚   â””â”€â”€ migrations/
-â”‚       â”œâ”€â”€ __init__.py
-â”‚       â”œâ”€â”€ 0001_initial.py         # Creation of base Avaliacao table
-â”‚       â””â”€â”€ 0002_initial.py         # Creation of child types and AvaliacaoRealizada
-â”‚
-â”œâ”€â”€ students/                       # Students app â€” models ready, views empty
-â”‚   â”œâ”€â”€ __init__.py
-â”‚   â”œâ”€â”€ apps.py                     # App configuration (StudentsConfig)
-â”‚   â”œâ”€â”€ models.py                   # Models: Aluno, Matricula, Request, RevisaoNota,
-â”‚   â”‚                               #          SegundaChamada, Aproveitamento, Equivalencia
-â”‚   â”œâ”€â”€ views.py                    # Views (empty â€” in development)
-â”‚   â”œâ”€â”€ admin.py                    # Model registration in admin panel
-â”‚   â”œâ”€â”€ tests.py                    # Tests (empty)
-â”‚   â””â”€â”€ migrations/
-â”‚       â”œâ”€â”€ __init__.py
-â”‚       â””â”€â”€ 0001_initial.py         # Creation of all student tables
-â”‚
-â”œâ”€â”€ certifications/                 # Certifications app â€” models ready, views empty
-â”‚   â”œâ”€â”€ __init__.py
-â”‚   â”œâ”€â”€ apps.py                     # App configuration (CertificationsConfig)
-â”‚   â”œâ”€â”€ models.py                   # Models: Certificado, IncidenteIntegridade
-â”‚   â”œâ”€â”€ views.py                    # Views (empty â€” in development)
-â”‚   â”œâ”€â”€ admin.py                    # Model registration in admin panel
-â”‚   â”œâ”€â”€ tests.py                    # Tests (empty)
-â”‚   â””â”€â”€ migrations/
-â”‚       â”œâ”€â”€ __init__.py
-â”‚       â””â”€â”€ 0001_initial.py         # Creation of certification tables
-â”‚
-â””â”€â”€ templates/                      # Global HTML templates
-    â”œâ”€â”€ base.html                   # Base template: layout with sidebar + content area
-    â””â”€â”€ courses/                    # Templates specific to the courses app
-        â”œâ”€â”€ home.html               # Homepage â€” card grid with all courses
-        â”œâ”€â”€ curso_detail.html      # Course details with start button
-        â”œâ”€â”€ modulo_detail.html      # Module details with lesson list
-        â”œâ”€â”€ aula_detail.html      # Lesson content with previous/next navigation
-        â””â”€â”€ _sidebar.html           # Reusable sidebar navigation component
+|-- manage.py                       # Django CLI (runserver, migrate, etc.)
+|-- requirements.txt                # Python project dependencies
+|-- db.sqlite3                      # SQLite database
+|-- .gitignore                      # Git ignored files
+|-- README.md                       # Project documentation
+|
+|-- plataforma_ensino/              # Django project configuration package
+|   |-- __init__.py
+|   |-- settings.py                 # Global settings (database, apps, language, etc.)
+|   |-- urls.py                     # Root routing (admin + courses)
+|   |-- wsgi.py                     # Entry point for WSGI servers (production)
+|   +-- asgi.py                     # Entry point for ASGI servers (async)
+|
+|-- courses/                        # Courses app - only app with implemented views
+|   |-- __init__.py
+|   |-- apps.py                     # App configuration (CoursesConfig)
+|   |-- models.py                   # Models: Curso, Modulo, Aula, RegraCurso, PreRequisito
+|   |-- views.py                    # Views: home, curso_detail, modulo_detail, aula_detail
+|   |-- urls.py                     # Courses app routes
+|   |-- admin.py                    # Model registration in admin panel
+|   |-- tests.py                    # Tests (empty)
+|   +-- migrations/
+|       |-- __init__.py
+|       +-- 0001_initial.py         # Creation of course tables
+|
+|-- assessments/                    # Assessments app - models ready, views empty
+|   |-- __init__.py
+|   |-- apps.py                     # App configuration (AssessmentsConfig)
+|   |-- models.py                   # Models: Avaliacao, AvaliacaoObjetiva, AvaliacaoDiscursiva,
+|   |                               #         ProjetoPratico, ProvaMonitorada, AvaliacaoRealizada
+|   |-- views.py                    # Views (empty - in development)
+|   |-- admin.py                    # Model registration in admin panel
+|   |-- tests.py                    # Tests (empty)
+|   +-- migrations/
+|       |-- __init__.py
+|       |-- 0001_initial.py         # Creation of base Avaliacao table
+|       +-- 0002_initial.py         # Creation of child types and AvaliacaoRealizada
+|
+|-- students/                       # Students app - models ready, views empty
+|   |-- __init__.py
+|   |-- apps.py                     # App configuration (StudentsConfig)
+|   |-- models.py                   # Models: Aluno, Matricula, Request, RevisaoNota,
+|   |                               #         SegundaChamada, Aproveitamento, Equivalencia
+|   |-- views.py                    # Views (empty - in development)
+|   |-- admin.py                    # Model registration in admin panel
+|   |-- tests.py                    # Tests (empty)
+|   +-- migrations/
+|       |-- __init__.py
+|       +-- 0001_initial.py         # Creation of all student tables
+|
+|-- certifications/                 # Certifications app - models ready, views empty
+|   |-- __init__.py
+|   |-- apps.py                     # App configuration (CertificationsConfig)
+|   |-- models.py                   # Models: Certificado, IncidenteIntegridade
+|   |-- views.py                    # Views (empty - in development)
+|   |-- admin.py                    # Model registration in admin panel
+|   |-- tests.py                    # Tests (empty)
+|   +-- migrations/
+|       |-- __init__.py
+|       +-- 0001_initial.py         # Creation of certification tables
+|
++-- templates/                      # Global HTML templates
+    |-- base.html                   # Base template: layout with sidebar + content area
+    +-- courses/                    # Templates specific to the courses app
+        |-- home.html               # Homepage - card grid with all courses
+        |-- curso_detail.html       # Course details with start button
+        |-- modulo_detail.html      # Module details with lesson list
+        |-- aula_detail.html        # Lesson content with previous/next navigation
+        +-- _sidebar.html           # Reusable sidebar navigation component
 ```
 
 ---
 
 ## App Descriptions
 
-### `plataforma_ensino/` â€” Project Configuration
+### `plataforma_ensino/` - Project Configuration
 
 Core Django package containing global settings and root routing.
 
@@ -190,7 +190,7 @@ The `Aluno` model includes methods to perform all requests directly: `matricular
 
 ---
 
-### `certifications/` â€” Certifications and Academic Integrity
+### `certifications/` - Certifications and Academic Integrity
 
 Models for certificate issuance and academic integrity incident tracking.
 
@@ -205,7 +205,7 @@ The `Certificado` model includes the methods `revogar()`, `suspender()`, and `re
 
 ---
 
-### `templates/` â€” HTML Templates
+### `templates/` - HTML Templates
 
 | Template                     | Description                                                                                                                  |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
@@ -221,23 +221,23 @@ The `Certificado` model includes the methods `revogar()`, `suspender()`, and `re
 ## Model Relationships
 
 ```text
-Curso â”€â”€< Modulo â”€â”€< Aula
-  â”‚           â”‚
-  â”‚           â””â”€â”€< Avaliacao (objective / essay / project / proctored)
-  â”‚                    â”‚
-  â”‚                    â””â”€â”€< AvaliacaoRealizada >â”€â”€ Aluno
-  â”‚
-  â””â”€â”€< PreRequisito
-  â””â”€â”€ RegraCurso
+Curso --< Modulo --< Aula
+  |           |
+  |           +--< Avaliacao (objective / essay / project / proctored)
+  |                    |
+  |                    +--< AvaliacaoRealizada >-- Aluno
+  |
+  +--< PreRequisito
+  +-- RegraCurso
 
-Aluno â”€â”€< Matricula >â”€â”€ Curso
-              â”‚
-              â”œâ”€â”€< Aproveitamento >â”€â”€ Modulo
-              â”œâ”€â”€< SegundaChamada >â”€â”€ Avaliacao
-              â”œâ”€â”€< RevisaoNota >â”€â”€ Avaliacao
-              â”œâ”€â”€< Equivalencia
-              â”œâ”€â”€ Certificado
-              â””â”€â”€< IncidenteIntegridade
+Aluno --< Matricula >-- Curso
+              |
+              |--< Aproveitamento >-- Modulo
+              |--< SegundaChamada >-- Avaliacao
+              |--< RevisaoNota >-- Avaliacao
+              |--< Equivalencia
+              |-- Certificado
+              +--< IncidenteIntegridade
 ```
 
 ---
@@ -291,7 +291,7 @@ http://localhost:8000/admin
 | `/<curso_id>/`                                       | `curso_detail` | Course details            |
 | `/<curso_id>/modulo/<modulo_id>/`                    | `modulo_detail` | Module details            |
 | `/<curso_id>/modulo/<modulo_id>/aula/<aula_id>/` | `aula_detail` | Lesson content            |
-| `/admin/`                                             | â€”               | Django admin panel        |
+| `/admin/`                                             | -               | Django admin panel        |
 
 ---
 
