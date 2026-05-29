@@ -1,0 +1,33 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <p class="course-title">Curso</p>
+    <h2>{{ curso.nome }}</h2>
+  </div>
+
+  <nav class="sidebar-nav">
+    {% for modulo in curso.modulos.all %}
+      <div class="modulo-item">
+        <button class="modulo-toggle {% if modulo.pk == modulo_ativo.pk %}active{% endif %}"
+                data-modulo="{{ modulo.pk }}">
+          <span class="modulo-num">{{ modulo.ordem }}</span>
+          <a href="{% url 'courses:modulo_detail' curso.pk modulo.pk %}"
+             style="color:inherit;text-decoration:none;flex:1;">
+            {{ modulo.nome }}
+          </a>
+          {% if modulo.aulas.count %}
+            <span class="arrow">&#9654;</span>
+          {% endif %}
+        </button>
+
+        <div class="aulas-list {% if modulo.pk == modulo_ativo.pk %}open{% endif %}">
+          {% for aula in modulo.aulas.all %}
+            <a href="{% url 'courses:aula_detail' curso.pk modulo.pk aula.pk %}"
+               class="aula-link {% if aula_ativa.pk == aula.pk %}active{% endif %}">
+              {{ aula.ordem }}. {{ aula.titulo }}
+            </a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </nav>
+</aside>

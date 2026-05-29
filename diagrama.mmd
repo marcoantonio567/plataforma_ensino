@@ -1,0 +1,152 @@
+classDiagram
+
+class Aluno {
+  +id: String
+  +nome: String
+  +matricula: String
+  +dataIngresso: Date
+
+  +matricular(curso)
+  +trancarMatricula(matricula)
+  +solicitarAproveitamento()
+  +solicitarSegundaChamada(avaliacao)
+  +solicitarRevisaoNota(avaliacao)
+}
+
+class Curso {
+  +id: String
+  +nome: String
+  +cargaHoraria: Integer
+}
+
+class Modulo {
+  +id: String
+  +nome: String
+  +ordem: Integer
+}
+
+class Aula {
+  +id: String
+  +titulo: String
+  +duracao: Integer
+}
+
+class Matricula {
+  +id: String
+  +dataMatricula: Date
+  +status: StatusMatricula
+  +mediaFinal: Float
+  +progresso: Float
+  +cargaHorariaCumprida: Integer
+}
+
+class RegraCurso {
+  +mediaMinima: Float
+  +cargaHorariaMinima: Integer
+  +exigeProjetoFinal: Boolean
+  +dataInicio: Date
+  +dataFim: Date
+}
+
+class Avaliacao {
+  +id: String
+  +tipo: TipoAvaliacao
+  +peso: Float
+}
+
+class AvaliacaoObjetiva {
+  +questoes: List
+}
+
+class AvaliacaoDiscursiva {
+  +descricao: String
+}
+
+class ProjetoPratico {
+  +repositorio: String
+}
+
+class ProvaMonitorada {
+  +monitoramentoAtivo: Boolean
+}
+
+class AvaliacaoRealizada {
+  +nota: Float
+  +data: Date
+}
+
+class Certificado {
+  +dataEmissao: Date
+  +validade: Date
+  +status: StatusCertificado
+
+  +revogar()
+  +suspender()
+  +renovar()
+}
+
+class IncidenteIntegridade {
+  +tipo: TipoIncidente
+  +data: Date
+}
+
+class PreRequisito {
+  +tipo: TipoPreRequisito
+  +referenciaId: String
+}
+
+class Solicitacao {
+  +id: String
+  +data: Date
+  +status: StatusSolicitacao
+  +justificativa: String
+}
+
+class RevisaoNota {
+  +avaliacaoId: String
+}
+
+class SegundaChamada {
+  +avaliacaoId: String
+}
+
+class Aproveitamento {
+  +moduloId: String
+}
+
+class Equivalencia {
+  +instituicaoOrigem: String
+  +disciplinaOrigem: String
+  +disciplinaDestino: String
+  +aprovado: Boolean
+}
+
+%% RELACIONAMENTOS
+
+Aluno "1" --> "*" Matricula
+Curso "1" --> "*" Matricula
+
+Curso "1" --> "*" Modulo
+Modulo "1" --> "*" Aula
+Modulo "1" --> "*" Avaliacao
+
+Matricula "1" --> "1" Curso
+Matricula "1" --> "1" RegraCurso
+
+Aluno "1" --> "*" AvaliacaoRealizada
+Avaliacao "1" --> "*" AvaliacaoRealizada
+
+Matricula "1" --> "*" IncidenteIntegridade
+
+Matricula "1" --> "0..1" Certificado
+
+Curso "1" --> "*" PreRequisito
+
+Solicitacao <|-- RevisaoNota
+Solicitacao <|-- SegundaChamada
+Solicitacao <|-- Aproveitamento
+
+Avaliacao <|-- AvaliacaoObjetiva
+Avaliacao <|-- AvaliacaoDiscursiva
+Avaliacao <|-- ProjetoPratico
+Avaliacao <|-- ProvaMonitorada

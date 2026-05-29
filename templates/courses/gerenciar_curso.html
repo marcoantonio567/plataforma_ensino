@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciar: {{ curso.nome }} — Plataforma de Ensino</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1a2e;
+      color: #e2e8f0;
+      padding: 20px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 { font-size: 1.1rem; font-weight: 600; }
+
+    header .header-links { display: flex; gap: 20px; }
+
+    header a {
+      color: #818cf8;
+      text-decoration: none;
+      font-size: 0.875rem;
+    }
+
+    header a:hover { text-decoration: underline; }
+
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: #6b7280;
+      text-decoration: none;
+      margin-bottom: 28px;
+    }
+
+    .back-link:hover { color: #4f46e5; }
+
+    /* Page header */
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .page-head h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .page-head .meta {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* Cards */
+    .card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-header h2 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #374151;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .card-body { padding: 20px; }
+
+    /* Form fields */
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      font-size: 0.875rem;
+      color: #111827;
+      background: #fff;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+
+    .field input:focus,
+    .field textarea:focus {
+      border-color: #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .field .error {
+      font-size: 0.78rem;
+      color: #dc2626;
+      margin-top: 3px;
+    }
+
+    .field .help {
+      font-size: 0.78rem;
+      color: #9ca3af;
+      margin-top: 3px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 140px;
+      gap: 12px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-decoration: none;
+      border: 1px solid #d1d5db;
+      color: #374151;
+      background: #fff;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-family: inherit;
+    }
+
+    .btn:hover { background: #f3f4f6; }
+
+    .btn.primary {
+      background: #4f46e5;
+      color: #fff;
+      border-color: #4f46e5;
+    }
+
+    .btn.primary:hover { background: #4338ca; }
+
+    .btn.danger {
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+
+    .btn.danger:hover { background: #fef2f2; }
+
+    .btn.sm { padding: 5px 10px; font-size: 0.78rem; }
+
+    .btn.ghost {
+      border: none;
+      background: transparent;
+      color: #6b7280;
+      padding: 5px 8px;
+    }
+
+    .btn.ghost:hover { background: #f3f4f6; color: #111827; }
+
+    /* Module list */
+    .modulo-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .modulo-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #f9fafb;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .modulo-head:hover { background: #f3f4f6; }
+
+    .modulo-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ede9fe;
+      color: #4f46e5;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .modulo-nome {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #111827;
+    }
+
+    .modulo-meta {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    .modulo-arrow {
+      font-size: 0.65rem;
+      color: #9ca3af;
+      transition: transform 0.2s;
+    }
+
+    .modulo-body { display: none; padding: 16px; border-top: 1px solid #e5e7eb; }
+    .modulo-body.open { display: block; }
+    .modulo-head.open .modulo-arrow { transform: rotate(90deg); }
+
+    /* Aula list inside module */
+    .aulas-list { margin-bottom: 16px; }
+
+    .aula-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .aula-row:last-child { border-bottom: none; }
+
+    .aula-row .aula-info { flex: 1; }
+
+    .aula-row .aula-titulo {
+      font-size: 0.875rem;
+      color: #111827;
+      font-weight: 500;
+    }
+
+    .aula-row .aula-meta {
+      font-size: 0.78rem;
+      color: #9ca3af;
+    }
+
+    /* Add aula form toggle */
+    .add-aula-toggle {
+      font-size: 0.82rem;
+      color: #4f46e5;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-weight: 500;
+      padding: 0;
+    }
+
+    .add-aula-toggle:hover { color: #4338ca; }
+
+    .add-aula-form {
+      display: none;
+      margin-top: 12px;
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+    }
+
+    .add-aula-form.open { display: block; }
+
+    /* Section labels */
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #9ca3af;
+      margin-bottom: 10px;
+    }
+
+    /* Empty state */
+    .empty-aulas {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      padding: 8px 0;
+    }
+
+    /* Preview link */
+    .preview-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: #4f46e5;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .preview-link:hover { text-decoration: underline; }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      background: #ede9fe;
+      color: #4f46e5;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Gerenciar curso</h1>
+  <div class="header-links">
+    <a href="{% url 'courses:curso_detail' curso.pk %}">Ver curso</a>
+    <a href="{% url 'courses:home' %}">Todos os cursos</a>
+  </div>
+</header>
+
+<div class="container">
+  <a href="{% url 'courses:home' %}" class="back-link">&#8592; Todos os cursos</a>
+
+  <div class="page-head">
+    <div>
+      <h1>{{ curso.nome }}</h1>
+      <p class="meta">
+        <span class="badge">Curso</span>
+        &nbsp; {{ curso.modulos.count }} módulo{{ curso.modulos.count|pluralize }}
+        &nbsp;&#183;&nbsp; {{ curso.carga_horaria }}h
+      </p>
+    </div>
+    <a href="{% url 'courses:curso_detail' curso.pk %}" class="preview-link">&#128065; Visualizar</a>
+  </div>
+
+  <!-- Editar informações do curso -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Informações do curso</h2>
+    </div>
+    <div class="card-body">
+      <form method="post" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="action" value="editar_curso">
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ curso_form.nome.id_for_label }}">{{ curso_form.nome.label }}</label>
+            {{ curso_form.nome }}
+            {% if curso_form.nome.errors %}
+              {% for error in curso_form.nome.errors %}<p class="error">{{ error }}</p>{% endfor %}
+            {% endif %}
+          </div>
+          <div class="field">
+            <label for="{{ curso_form.carga_horaria.id_for_label }}">{{ curso_form.carga_horaria.label }}</label>
+            {{ curso_form.carga_horaria }}
+            {% if curso_form.carga_horaria.errors %}
+              {% for error in curso_form.carga_horaria.errors %}<p class="error">{{ error }}</p>{% endfor %}
+            {% endif %}
+          </div>
+        </div>
+
+        <button type="submit" class="btn primary">Salvar alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Módulos -->
+  <div class="card">
+    <div class="card-header">
+      <h2>Módulos ({{ curso.modulos.count }})</h2>
+    </div>
+    <div class="card-body">
+
+      {% if curso.modulos.all %}
+        {% for modulo in curso.modulos.all %}
+          <div class="modulo-item">
+            <div class="modulo-head" onclick="toggleModulo(this)">
+              <span class="modulo-num">{{ modulo.ordem }}</span>
+              <span class="modulo-nome">{{ modulo.nome }}</span>
+              <span class="modulo-meta">{{ modulo.aulas.count }} aula{{ modulo.aulas.count|pluralize }}</span>
+              <!-- Excluir módulo -->
+              <form method="post" style="margin:0" onsubmit="return confirm('Excluir este módulo e todas as suas aulas?')">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="excluir_modulo">
+                <input type="hidden" name="modulo_id" value="{{ modulo.pk }}">
+                <button type="submit" class="btn ghost sm" title="Excluir módulo" onclick="event.stopPropagation()">&#128465;</button>
+              </form>
+              <span class="modulo-arrow">&#9654;</span>
+            </div>
+
+            <div class="modulo-body" id="modulo-body-{{ modulo.pk }}">
+
+              <!-- Aulas do módulo -->
+              {% if modulo.aulas.all %}
+                <p class="section-label">Aulas</p>
+                <div class="aulas-list">
+                  {% for aula in modulo.aulas.all %}
+                    <div class="aula-row">
+                      <div class="aula-info">
+                        <div class="aula-titulo">{{ aula.ordem }}. {{ aula.titulo }}</div>
+                        <div class="aula-meta">{{ aula.duracao }} min</div>
+                      </div>
+                      <form method="post" onsubmit="return confirm('Excluir esta aula?')" style="margin:0">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="excluir_aula">
+                        <input type="hidden" name="aula_id" value="{{ aula.pk }}">
+                        <button type="submit" class="btn ghost sm" title="Excluir aula">&#128465;</button>
+                      </form>
+                    </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="empty-aulas">Nenhuma aula ainda.</p>
+              {% endif %}
+
+              <!-- Adicionar aula -->
+              <button class="add-aula-toggle" onclick="toggleAulaForm('aula-form-{{ modulo.pk }}')">+ Adicionar aula</button>
+
+              <div class="add-aula-form" id="aula-form-{{ modulo.pk }}">
+                <form method="post" novalidate>
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="criar_aula">
+                  <input type="hidden" name="modulo_id" value="{{ modulo.pk }}">
+
+                  {% with form=aula_forms|default_if_none:"" %}
+                    {% with aform=aula_forms %}
+                      <div class="field">
+                        <label>Título da aula</label>
+                        <input type="text" name="titulo" placeholder="Ex.: Variáveis e tipos" required>
+                      </div>
+                      <div class="field-row">
+                        <div class="field">
+                          <label>Conteúdo</label>
+                          <textarea name="conteudo" rows="3" placeholder="Conteúdo da aula..."></textarea>
+                        </div>
+                        <div class="field">
+                          <label>Duração (min)</label>
+                          <input type="number" name="duracao" placeholder="Ex.: 30" min="1" required>
+                        </div>
+                      </div>
+                    {% endwith %}
+                  {% endwith %}
+
+                  <div style="display:flex; gap:8px; margin-top:8px">
+                    <button type="submit" class="btn primary sm">Adicionar aula</button>
+                    <button type="button" class="btn sm" onclick="toggleAulaForm('aula-form-{{ modulo.pk }}')">Cancelar</button>
+                  </div>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color:#9ca3af; font-size:0.875rem; padding: 8px 0 16px;">Nenhum módulo ainda. Adicione o primeiro abaixo.</p>
+      {% endif %}
+
+      <!-- Adicionar módulo -->
+      <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #f3f4f6;">
+        <p class="section-label">Novo módulo</p>
+        <form method="post" novalidate style="display:flex; gap:10px; align-items:flex-end;">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="criar_modulo">
+          <div class="field" style="flex:1; margin:0;">
+            <label for="{{ modulo_form.nome.id_for_label }}">{{ modulo_form.nome.label }}</label>
+            {{ modulo_form.nome }}
+            {% if modulo_form.nome.errors %}
+              {% for error in modulo_form.nome.errors %}<p class="error">{{ error }}</p>{% endfor %}
+            {% endif %}
+          </div>
+          <button type="submit" class="btn primary">Adicionar módulo</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleModulo(head) {
+    const body = head.nextElementSibling;
+    const isOpen = body.classList.contains("open");
+    body.classList.toggle("open", !isOpen);
+    head.classList.toggle("open", !isOpen);
+  }
+
+  function toggleAulaForm(id) {
+    const form = document.getElementById(id);
+    form.classList.toggle("open");
+  }
+</script>
+
+</body>
+</html>
