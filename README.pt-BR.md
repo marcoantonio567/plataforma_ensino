@@ -1,5 +1,14 @@
 # Plataforma de Ensino
 
+<p align="center">
+  <a href="README.pt-BR.md">
+    <img alt="Leia em Portugues" src="https://img.shields.io/badge/README-Portugues-1f6feb?style=for-the-badge&labelColor=0d1117">
+  </a>
+  <a href="README.en.md">
+    <img alt="Read in English" src="https://img.shields.io/badge/README-English-2ea043?style=for-the-badge&labelColor=0d1117">
+  </a>
+</p>
+
 Sistema de gerenciamento de cursos e aprendizado online desenvolvido com Django. A plataforma oferece uma estrutura completa para criação e navegação de cursos, com suporte a avaliações, gestão de alunos e emissão de certificados.
 
 ## Tecnologias

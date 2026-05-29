@@ -1,5 +1,14 @@
 ﻿# Teaching Platform
 
+<p align="center">
+  <a href="README.pt-BR.md">
+    <img alt="Leia em Portugues" src="https://img.shields.io/badge/README-Portugues-1f6feb?style=for-the-badge&labelColor=0d1117">
+  </a>
+  <a href="README.en.md">
+    <img alt="Read in English" src="https://img.shields.io/badge/README-English-2ea043?style=for-the-badge&labelColor=0d1117">
+  </a>
+</p>
+
 An online course management and e-learning system built with Django. The platform provides a complete structure for course creation and navigation, with support for assessments, student management, and certificate issuance. 
 
 ## Technologies
