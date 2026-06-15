@@ -49,15 +49,16 @@ class Certificado(models.Model):
         return f"Certificado — {self.matricula}"
 
     def revogar(self):
-        self.status = StatusCertificado.REVOGADO
-        self.save()
+        from certifications.application.services import revoke
+
+        return revoke(self)
 
     def suspender(self):
-        self.status = StatusCertificado.SUSPENSO
-        self.save()
+        from certifications.application.services import suspend
+
+        return suspend(self)
 
     def renovar(self, nova_validade=None):
-        self.status = StatusCertificado.EMITIDO
-        if nova_validade:
-            self.validade = nova_validade
-        self.save()
+        from certifications.application.services import renew
+
+        return renew(self, nova_validade)
