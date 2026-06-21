@@ -34,8 +34,6 @@ local_settings.py
 .DS_Store
 Thumbs.db
 
-#aocumentation
-documents/
 
 #ai_models/
 .claude/
