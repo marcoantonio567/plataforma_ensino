@@ -38,8 +38,11 @@ class Aluno(models.Model):
         return super().save(*args, **kwargs)
 
     def matricular(self, curso):
-        regra = curso.regra_vigente()
-        return Matricula.objects.create(aluno=self, curso=curso, regra_curso=regra)
+        from students.domain.factories import MatriculaFactory
+
+        matricula = MatriculaFactory.criar(self, curso)
+        matricula.save()
+        return matricula
 
     def trancar_matricula(self, matricula):
         self._ensure_matricula_belongs_to_student(matricula)

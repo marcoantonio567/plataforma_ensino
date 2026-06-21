@@ -9,6 +9,7 @@ from students.application.services import (
     get_or_create_student,
 )
 from students.domain.exceptions import InvalidEnrollmentTransition
+from students.domain.factories import AlunoFactory, MatriculaFactory
 from students.domain.value_objects import (
     InvalidStudentValue,
     NumeroMatricula,
@@ -71,3 +72,18 @@ class EnrollmentServicesTest(TestCase):
 
         with self.assertRaises(InvalidEnrollmentTransition):
             enrollment.solicitar_aproveitamento(other_module)
+
+    def test_factories_create_student_and_enrollment_with_business_rules(self):
+        user = User.objects.create_user("factory-student")
+        student = AlunoFactory.criar_para_usuario(user, numero_matricula="alu9999")
+        enrollment = MatriculaFactory.criar(student, self.course)
+
+        self.assertEqual(student.numero_matricula, "ALU9999")
+        self.assertEqual(enrollment.regra_curso, self.rule)
+        self.assertEqual(enrollment.status, Matricula.Status.ATIVA)
+
+    def test_enrollment_factory_rejects_course_without_active_rule(self):
+        course = Curso.objects.create(nome="Sem regra", carga_horaria=5)
+
+        with self.assertRaises(ValueError):
+            MatriculaFactory.criar(self.student, course)
