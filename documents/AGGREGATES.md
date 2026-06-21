@@ -4,6 +4,10 @@ Este documento explicita as fronteiras de consistencia dos principais agregados 
 projeto. A regra geral e que codigo de aplicacao deve solicitar mudancas por meio
 da Aggregate Root, deixando entidades internas protegidas por metodos de dominio.
 
+Para a matriz completa de regras, classes responsaveis, objetos protetores,
+estados invalidos bloqueados e invariantes mantidas, consulte
+`REGRAS_NEGOCIO_PROTEGIDAS.md`.
+
 ## Catalogo de Curso
 
 - Aggregate Root: `Curso`
@@ -55,6 +59,7 @@ Invariantes protegidas:
 - Progresso deve ficar entre 0 e 100.
 - Media final deve ficar entre 0 e 10.
 - Carga horaria cumprida nao pode ser negativa.
+- Toda matricula deve registrar uma regra pertencente ao mesmo curso.
 - Solicitacoes so podem ser abertas para itens do mesmo curso da matricula.
 
 ## Avaliacao
@@ -96,5 +101,6 @@ Invariantes protegidas:
 
 - Certificado revogado nao pode ser emitido, suspenso ou renovado.
 - Certificado suspenso nao pode ser suspenso novamente.
+- Transicoes diretas invalidas de status sao rejeitadas no `save()`.
 - A emissao inicial e validada pelo domain service de certificacao antes de
   modificar o certificado.

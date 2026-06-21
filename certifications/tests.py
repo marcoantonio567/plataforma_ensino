@@ -119,3 +119,30 @@ class CertificateServicesTest(TestCase):
                 concluiu_projeto_obrigatorio=False,
                 possui_incidente_grave=False,
             )
+
+    def test_certificate_rejects_direct_issue_for_ineligible_enrollment(self):
+        user = User.objects.create_user("active-certificate-student")
+        student = Aluno.objects.create(
+            usuario=user,
+            numero_matricula="ALU0002",
+            data_ingresso=date.today(),
+        )
+        enrollment = Matricula.objects.create(
+            aluno=student,
+            curso=self.course,
+            regra_curso=self.rule,
+            status=Matricula.Status.ATIVA,
+        )
+
+        with self.assertRaises(CertificationDenied):
+            Certificado.objects.create(matricula=enrollment)
+
+    def test_certificate_rejects_invalid_direct_status_transition_on_save(self):
+        certificate = Certificado.objects.create(matricula=self.enrollment)
+        certificate.revogar()
+        certificate.save(update_fields=["status"])
+
+        certificate.status = StatusCertificado.EMITIDO
+
+        with self.assertRaises(ValueError):
+            certificate.save(update_fields=["status"])
