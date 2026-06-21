@@ -1,7 +1,7 @@
 # Plataforma de Ensino
 
 <p align="center">
-  <a href="README.pt-BR.md">
+  <a href="README.md">
     <img alt="Leia em Portugues" src="https://img.shields.io/badge/README-Portugues-1f6feb?style=for-the-badge&labelColor=0d1117">
   </a>
   <a href="README.en.md">
@@ -9,233 +9,345 @@
   </a>
 </p>
 
-Sistema de gerenciamento de cursos e aprendizado online desenvolvido com Django. A plataforma oferece uma estrutura completa para criação e navegação de cursos, com suporte a avaliações, gestão de alunos e emissão de certificados.
+Sistema de gerenciamento de cursos e aprendizado online desenvolvido com Django. A plataforma permite criar e navegar por cursos, módulos e aulas, além de modelar matrículas, avaliações, solicitações acadêmicas, certificados e incidentes de integridade acadêmica.
 
 ## Tecnologias
 
 - **Backend**: Django 6.0.3
 - **Banco de dados**: SQLite
-- **Frontend**: HTML5/CSS3 (templates Django)
+- **Frontend**: HTML5/CSS3 com templates Django
 - **Idioma**: Português (Brasil)
 - **Fuso horário**: America/Sao_Paulo
 
 ## Funcionalidades
 
 ### Implementadas
-- Listagem de cursos na página inicial
-- Navegação hierárquica: Curso → Módulo → Aula
-- Sidebar com navegação por módulos e aulas
-- Navegação entre aulas (anterior/próxima)
-- Painel administrativo completo via Django Admin
 
-### Modeladas (em desenvolvimento)
+- Listagem de cursos na página inicial
+- Navegação hierárquica: Curso -> Módulo -> Aula
+- Sidebar com navegação por módulos e aulas
+- Navegação entre aulas
+- Criação e gerenciamento básico de cursos, módulos e aulas
+- Registro, login e logout de estudantes
+- Matrícula, listagem de matrículas e cancelamento de matrícula
+- Painel administrativo via Django Admin
+
+### Modeladas / em evolução
+
 - **Avaliações**: provas objetivas, discursivas, projetos práticos e provas monitoradas
-- **Alunos**: matrículas, aproveitamento de disciplinas, segunda chamada, revisão de notas
-- **Certificações**: emissão de certificados digitais com UUID de verificação e controle de validade
-- **Integridade acadêmica**: registro e gestão de incidentes
+- **Alunos**: matrículas, aproveitamento de disciplinas, segunda chamada e revisão de notas
+- **Certificações**: emissão, suspensão, revogação e renovação de certificados
+- **Integridade acadêmica**: registro de incidentes acadêmicos
 
 ---
 
 ## Estrutura de Pastas
 
+O projeto usa a própria pasta `plataforma_ensino/` como raiz do repositório e pacote Django. Por isso os arquivos de configuração (`settings.py`, `urls.py`, `asgi.py`, `wsgi.py`) ficam diretamente na raiz.
+
+```text
+plataforma_ensino/
+|-- manage.py                 # CLI do Django
+|-- settings.py               # Configurações globais do projeto
+|-- urls.py                   # Roteamento raiz: admin, courses e students
+|-- asgi.py                   # Entrada ASGI
+|-- wsgi.py                   # Entrada WSGI
+|-- requirements.txt          # Dependências Python
+|-- README.md                 # Documentação principal
+|-- README.en.md              # Documentação em inglês
+|-- ARCHITECTURE.md           # Resumo das camadas DDD adotadas
+|-- diagrama.mmd              # Diagrama Mermaid
+|-- .gitignore
+|
+|-- courses/                  # Contexto de cursos, módulos e aulas
+|   |-- models.py             # Entidades ORM: Curso, Modulo, Aula, RegraCurso, PreRequisito
+|   |-- urls.py               # Rotas públicas do contexto de cursos
+|   |-- views.py              # Fachada de compatibilidade para presentation.views
+|   |-- forms.py              # Fachada de compatibilidade para presentation.forms
+|   |-- admin.py              # Registro dos modelos no Django Admin
+|   |-- tests.py
+|   |-- domain/
+|   |   |-- repositories.py   # Contratos de repositório do domínio
+|   |   `-- __init__.py
+|   |-- application/
+|   |   |-- selectors.py      # Consultas de leitura
+|   |   |-- services.py       # Casos de uso que alteram estado
+|   |   `-- __init__.py
+|   |-- infrastructure/
+|   |   |-- repositories.py   # Implementação com Django ORM
+|   |   `-- __init__.py
+|   |-- presentation/
+|   |   |-- views.py          # Views HTTP do app de cursos
+|   |   |-- forms.py          # Forms usados pela camada de apresentação
+|   |   `-- __init__.py
+|   `-- migrations/
+|
+|-- students/                 # Contexto de alunos e matrículas
+|   |-- models.py             # Aluno, Matricula, Solicitacao e tipos derivados
+|   |-- urls.py               # Rotas de autenticação, matrícula e área do estudante
+|   |-- views.py              # Fachada de compatibilidade para presentation.views
+|   |-- admin.py
+|   |-- tests.py
+|   |-- domain/
+|   |   |-- exceptions.py
+|   |   |-- repositories.py
+|   |   `-- __init__.py
+|   |-- application/
+|   |   |-- selectors.py
+|   |   |-- services.py
+|   |   `-- __init__.py
+|   |-- infrastructure/
+|   |   |-- repositories.py
+|   |   `-- __init__.py
+|   |-- presentation/
+|   |   |-- views.py
+|   |   `-- __init__.py
+|   `-- migrations/
+|
+|-- assessments/              # Contexto de avaliações e notas
+|   |-- models.py             # Avaliacao e especializações
+|   |-- views.py
+|   |-- admin.py
+|   |-- tests.py
+|   |-- domain/
+|   |   |-- policies.py       # Regras puras, como validação de nota
+|   |   |-- repositories.py
+|   |   `-- __init__.py
+|   |-- application/
+|   |   |-- services.py
+|   |   `-- __init__.py
+|   |-- infrastructure/
+|   |   |-- repositories.py
+|   |   `-- __init__.py
+|   |-- presentation/
+|   |   `-- __init__.py
+|   `-- migrations/
+|
+|-- certifications/           # Contexto de certificados e integridade acadêmica
+|   |-- models.py             # Certificado e IncidenteIntegridade
+|   |-- views.py
+|   |-- admin.py
+|   |-- tests.py
+|   |-- domain/
+|   |   |-- policies.py
+|   |   |-- repositories.py
+|   |   `-- __init__.py
+|   |-- application/
+|   |   |-- services.py
+|   |   `-- __init__.py
+|   |-- infrastructure/
+|   |   |-- repositories.py
+|   |   `-- __init__.py
+|   |-- presentation/
+|   |   `-- __init__.py
+|   `-- migrations/
+|
+|-- templates/
+|   |-- base.html
+|   |-- courses/
+|   |   |-- _sidebar.html
+|   |   |-- home.html
+|   |   |-- curso_detail.html
+|   |   |-- modulo_detail.html
+|   |   |-- aula_detail.html
+|   |   |-- criar_curso.html
+|   |   `-- gerenciar_curso.html
+|   `-- students/
+|       |-- login.html
+|       |-- registro.html
+|       `-- minhas_matriculas.html
+|
+|-- seed/
+|   `-- seed.py               # Script de carga inicial de dados
+|
+`-- documents/
+    |-- CRITICA_DDD.md
+    |-- DOCUMENTACAO_NEGOCIO.md
+    `-- Cases para Livro DDD - Eric Evans (1).pdf
 ```
-plataforma_ensino/                  # Raiz do projeto
-├── manage.py                       # CLI do Django (runserver, migrate, etc.)
-├── requirements.txt                # Dependências Python do projeto
-├── db.sqlite3                      # Banco de dados SQLite
-├── .gitignore                      # Arquivos ignorados pelo Git
-├── README.md                       # Documentação do projeto
-│
-├── plataforma_ensino/              # Pacote de configuração do projeto Django
-│   ├── __init__.py
-│   ├── settings.py                 # Configurações globais (banco, apps, idioma, etc.)
-│   ├── urls.py                     # Roteamento raiz (admin + courses)
-│   ├── wsgi.py                     # Ponto de entrada para servidores WSGI (produção)
-│   └── asgi.py                     # Ponto de entrada para servidores ASGI (async)
-│
-├── courses/                        # App de cursos — única com views implementadas
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (CoursesConfig)
-│   ├── models.py                   # Modelos: Curso, Modulo, Aula, RegraCurso, PreRequisito
-│   ├── views.py                    # Views: home, curso_detail, modulo_detail, aula_detail
-│   ├── urls.py                     # Rotas do app de cursos
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       └── 0001_initial.py         # Criação das tabelas de cursos
-│
-├── assessments/                    # App de avaliações — modelos prontos, views vazias
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (AssessmentsConfig)
-│   ├── models.py                   # Modelos: Avaliacao, AvaliacaoObjetiva, AvaliacaoDiscursiva,
-│   │                               #          ProjetoPratico, ProvaMonitorada, AvaliacaoRealizada
-│   ├── views.py                    # Views (vazio — em desenvolvimento)
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       ├── 0001_initial.py         # Criação da tabela base Avaliacao
-│       └── 0002_initial.py         # Criação dos tipos filhos e AvaliacaoRealizada
-│
-├── students/                       # App de alunos — modelos prontos, views vazias
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (StudentsConfig)
-│   ├── models.py                   # Modelos: Aluno, Matricula, Solicitacao, RevisaoNota,
-│   │                               #          SegundaChamada, Aproveitamento, Equivalencia
-│   ├── views.py                    # Views (vazio — em desenvolvimento)
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       └── 0001_initial.py         # Criação de todas as tabelas de alunos
-│
-├── certifications/                 # App de certificações — modelos prontos, views vazias
-│   ├── __init__.py
-│   ├── apps.py                     # Configuração do app (CertificationsConfig)
-│   ├── models.py                   # Modelos: Certificado, IncidenteIntegridade
-│   ├── views.py                    # Views (vazio — em desenvolvimento)
-│   ├── admin.py                    # Registro dos modelos no painel admin
-│   ├── tests.py                    # Testes (vazio)
-│   └── migrations/
-│       ├── __init__.py
-│       └── 0001_initial.py         # Criação das tabelas de certificações
-│
-└── templates/                      # Templates HTML globais do projeto
-    ├── base.html                   # Template base: layout com sidebar + área de conteúdo
-    └── courses/                    # Templates específicos do app de cursos
-        ├── home.html               # Página inicial — grade de cards com todos os cursos
-        ├── curso_detail.html       # Detalhes de um curso com botão para iniciar
-        ├── modulo_detail.html      # Detalhes de um módulo com lista de aulas
-        ├── aula_detail.html        # Conteúdo de uma aula com navegação anterior/próxima
-        └── _sidebar.html           # Componente reutilizável de navegação lateral
+
+> Observação: pela configuração atual de `settings.py`, o SQLite (`db.sqlite3`) é gerado um nível acima da pasta do projeto.
+
+---
+
+## Decisão Arquitetural: Estrutura DDD por App
+
+### Contexto
+
+Em projetos Django com vários domínios, como cursos, alunos, avaliações e certificações, existem duas formas comuns de aplicar DDD. A estrutura centralizada agrupa todas as camadas em pastas globais (`domain/`, `application/`, `infrastructure/`, `interfaces/`). A estrutura descentralizada organiza essas camadas dentro de cada app Django.
+
+### Decisão
+
+Este projeto adota DDD por app. Cada bounded context mantém suas próprias regras de negócio, casos de uso, adaptadores e interfaces de apresentação:
+
+```text
+courses/
+  domain/
+  application/
+  infrastructure/
+  presentation/
+
+students/
+  domain/
+  application/
+  infrastructure/
+  presentation/
 ```
+
+### Justificativa
+
+A escolha favorece modularidade e baixo acoplamento. Como cada app representa uma área funcional do negócio, manter as camadas dentro dele facilita evoluir, testar e compreender o contexto sem navegar por diretórios globais muito amplos. Também preserva a forma natural de organização do Django, onde apps são unidades de responsabilidade, roteamento, admin, migrations e configuração.
+
+Exemplo prático:
+
+```python
+# students/application/services.py
+def enroll_student(student, course, repository=None):
+    repository = repository or DjangoStudentRepository()
+    enrollment = repository.find_enrollment(student, course)
+
+    if enrollment is None:
+        return EnrollmentResult(
+            enrollment=repository.enroll(student, course),
+            created=True,
+        )
+
+    return EnrollmentResult(enrollment=enrollment)
+```
+
+### Alternativas consideradas
+
+A estrutura centralizada pode ser útil em sistemas menores ou em equipes que preferem visualizar todas as entidades de domínio juntas. Porém, em projetos com múltiplos apps, ela tende a misturar contextos e aumentar o custo de navegação.
+
+### Consequências
+
+Positivamente, a arquitetura por app melhora coesão, isolamento e escalabilidade organizacional. Negativamente, pode gerar repetição de pastas e exige disciplina para evitar duplicação de conceitos compartilhados. Quando houver regras transversais, elas devem ser extraídas com critério para módulos compartilhados bem definidos.
+
+---
+
+## Descrição das Camadas
+
+Cada contexto segue a mesma organização:
+
+| Camada | Responsabilidade |
+|--------|------------------|
+| `domain/` | Políticas, exceções e contratos sem dependência de HTTP ou ORM concreto |
+| `application/` | Casos de uso, serviços transacionais e selectors de leitura |
+| `infrastructure/` | Implementações concretas, principalmente repositórios baseados no Django ORM |
+| `presentation/` | Views e forms ligados à camada HTTP |
+| `models.py` | Modelos ORM e fachada estável para o Django |
+| `views.py` / `forms.py` | Fachadas de compatibilidade para imports antigos, URLs e admin |
+
+Regra de dependência esperada:
+
+```text
+presentation -> application -> domain
+```
+
+A infraestrutura implementa os contratos do domínio e é usada pelos serviços de aplicação.
 
 ---
 
 ## Descrição dos Apps
 
-### `plataforma_ensino/` — Configuração do Projeto
+### `courses/` - Cursos
 
-Pacote central do Django. Contém as configurações globais e o roteamento raiz.
+Responsável pelo catálogo de cursos, módulos, aulas e regras de conclusão.
 
-| Arquivo | Função |
-|---------|--------|
-| `settings.py` | Define banco de dados, apps instalados, idioma, fuso horário e diretório de templates |
-| `urls.py` | Mapeia `/admin/` para o painel Django e `/` para as URLs do app `courses` |
-| `wsgi.py` / `asgi.py` | Pontos de entrada para deploy em servidores de produção |
-
----
-
-### `courses/` — Gerenciamento de Cursos
-
-Único app com views e templates implementados. Responsável por toda a navegação de conteúdo.
-
-**Modelos:**
+**Modelos principais:**
 
 | Modelo | Descrição |
 |--------|-----------|
 | `Curso` | Curso com nome, carga horária e timestamps |
 | `Modulo` | Módulo ordenado dentro de um curso |
-| `Aula` | Aula com título, conteúdo, duração e ordem dentro do módulo |
-| `RegraCurso` | Regras de conclusão: média mínima, carga horária mínima, projeto final obrigatório |
-| `PreRequisito` | Pré-requisito de curso ou módulo para matrícula |
+| `Aula` | Aula com título, conteúdo, duração e ordem |
+| `RegraCurso` | Regras de conclusão, média mínima, carga horária mínima e projeto final |
+| `PreRequisito` | Pré-requisito de curso ou módulo |
 
-**Views:**
+**Views/rotas principais:**
 
-| View | Rota | Descrição |
+| Rota | View | Descrição |
 |------|------|-----------|
-| `home` | `/` | Lista todos os cursos disponíveis |
-| `curso_detail` | `/<curso_id>/` | Exibe detalhes do curso e link para iniciar |
-| `modulo_detail` | `/<curso_id>/modulo/<modulo_id>/` | Lista aulas do módulo |
-| `aula_detail` | `/<curso_id>/modulo/<modulo_id>/aula/<aula_id>/` | Exibe conteúdo da aula com navegação |
+| `/` | `home` | Lista os cursos |
+| `/novo/` | `criar_curso` | Cria um curso |
+| `/<curso_id>/` | `curso_detail` | Exibe detalhes do curso |
+| `/<curso_id>/gerenciar/` | `gerenciar_curso` | Gerencia curso, módulos e aulas |
+| `/<curso_id>/modulo/<modulo_id>/` | `modulo_detail` | Exibe um módulo |
+| `/<curso_id>/modulo/<modulo_id>/aula/<aula_id>/` | `aula_detail` | Exibe uma aula |
 
----
+### `students/` - Alunos e Matrículas
 
-### `assessments/` — Avaliações
+Responsável por autenticação simples de estudante, matrícula em curso e solicitações acadêmicas.
 
-Modelos prontos para múltiplos tipos de avaliação usando herança de tabelas (multi-table inheritance).
-
-**Modelos:**
-
-| Modelo | Descrição |
-|--------|-----------|
-| `Avaliacao` | Avaliação base vinculada a um módulo (tipo + peso) |
-| `AvaliacaoObjetiva` | Prova de múltipla escolha com questões em JSONField |
-| `AvaliacaoDiscursiva` | Prova dissertativa com descrição em texto |
-| `ProjetoPratico` | Projeto com link de repositório opcional |
-| `ProvaMonitorada` | Prova com monitoramento remoto ativo |
-| `AvaliacaoRealizada` | Registro de nota de um aluno em uma avaliação |
-
----
-
-### `students/` — Alunos e Matrículas
-
-Modelos para gerenciar o ciclo de vida acadêmico do aluno, desde a matrícula até solicitações administrativas.
-
-**Modelos:**
+**Modelos principais:**
 
 | Modelo | Descrição |
 |--------|-----------|
-| `Aluno` | Perfil do aluno vinculado ao `User` do Django (número de matrícula, data de ingresso) |
-| `Matricula` | Matrícula em um curso (status, média final, progresso, carga horária cumprida) |
-| `Aproveitamento` | Solicitação de aproveitamento de disciplina cursada anteriormente |
-| `SegundaChamada` | Solicitação de segunda chamada em uma avaliação |
-| `RevisaoNota` | Recurso de revisão de nota de uma avaliação |
-| `Equivalencia` | Registro de equivalência de disciplina de outra instituição |
+| `Aluno` | Perfil vinculado ao `User` do Django |
+| `Matricula` | Matrícula de um aluno em um curso |
+| `Solicitacao` | Base para solicitações acadêmicas |
+| `Aproveitamento` | Solicitação de aproveitamento de disciplina |
+| `SegundaChamada` | Solicitação de segunda chamada |
+| `RevisaoNota` | Solicitação de revisão de nota |
+| `Equivalencia` | Registro de equivalência entre disciplinas |
 
-O modelo `Aluno` possui métodos para realizar todas as solicitações diretamente: `matricular()`, `trancar_matricula()`, `solicitar_aproveitamento()`, `solicitar_segunda_chamada()` e `solicitar_revisao_nota()`.
+**Rotas:**
 
----
+| Rota | Descrição |
+|------|-----------|
+| `/estudante/login/` | Login |
+| `/estudante/logout/` | Logout |
+| `/estudante/registro/` | Registro de usuário |
+| `/estudante/minhas-matriculas/` | Área de matrículas do estudante |
+| `/estudante/matricular/<curso_id>/` | Matrícula em curso |
+| `/estudante/cancelar/<matricula_id>/` | Cancelamento de matrícula |
 
-### `certifications/` — Certificações e Integridade Acadêmica
+### `assessments/` - Avaliações
 
-Modelos para emissão de certificados e registro de incidentes de integridade.
-
-**Modelos:**
+Modela avaliações e notas usando herança de tabelas do Django.
 
 | Modelo | Descrição |
 |--------|-----------|
-| `Certificado` | Certificado de conclusão de curso vinculado a uma matrícula (com validade e status) |
-| `IncidenteIntegridade` | Registro de incidente acadêmico (cola, plágio, fraude, outros) |
+| `Avaliacao` | Avaliação base vinculada a um módulo |
+| `AvaliacaoObjetiva` | Avaliação com questões em `JSONField` |
+| `AvaliacaoDiscursiva` | Avaliação discursiva com descrição textual |
+| `ProjetoPratico` | Projeto com repositório opcional |
+| `ProvaMonitorada` | Prova com monitoramento remoto |
+| `AvaliacaoRealizada` | Nota de um aluno em uma avaliação |
 
-O `Certificado` possui os métodos `revogar()`, `suspender()` e `renovar()` para controle do ciclo de vida.
+### `certifications/` - Certificações e Integridade
 
----
+Modela certificados e incidentes acadêmicos.
 
-### `templates/` — Templates HTML
+| Modelo | Descrição |
+|--------|-----------|
+| `Certificado` | Certificado vinculado a uma matrícula |
+| `IncidenteIntegridade` | Registro de incidente acadêmico |
 
-| Template | Descrição |
-|----------|-----------|
-| `base.html` | Layout base com sidebar escura (280px), barra de breadcrumb e área de conteúdo. Blocos: `title`, `sidebar`, `breadcrumb`, `content` |
-| `courses/home.html` | Página standalone com grid de cards dos cursos (não herda de `base.html`) |
-| `courses/curso_detail.html` | Detalhes do curso; herda de `base.html` |
-| `courses/modulo_detail.html` | Lista de aulas do módulo; herda de `base.html` |
-| `courses/aula_detail.html` | Conteúdo da aula com botões anterior/próxima; herda de `base.html` |
-| `courses/_sidebar.html` | Componente de navegação lateral com módulos e aulas expansíveis (prefixado com `_` por ser parcial) |
+O `Certificado` expõe métodos de ciclo de vida como `revogar()`, `suspender()` e `renovar()`, delegando a lógica para a camada de aplicação.
 
 ---
 
 ## Relações entre os Modelos
 
-```
-Curso ──< Modulo ──< Aula
-  │           │
-  │           └──< Avaliacao (objetiva / discursiva / projeto / monitorada)
-  │                    │
-  │                    └──< AvaliacaoRealizada >── Aluno
-  │
-  └──< PreRequisito
-  └── RegraCurso
+```text
+Curso --< Modulo --< Aula
+  |           |
+  |           `--< Avaliacao (objetiva / discursiva / projeto / monitorada)
+  |                    |
+  |                    `--< AvaliacaoRealizada >-- Aluno
+  |
+  |--< PreRequisito
+  `-- RegraCurso
 
-Aluno ──< Matricula >── Curso
-              │
-              ├──< Aproveitamento >── Modulo
-              ├──< SegundaChamada >── Avaliacao
-              ├──< RevisaoNota    >── Avaliacao
-              ├──< Equivalencia
-              ├── Certificado
-              └──< IncidenteIntegridade
+Aluno --< Matricula >-- Curso
+              |
+              |--< Aproveitamento >-- Modulo
+              |--< SegundaChamada >-- Avaliacao
+              |--< RevisaoNota    >-- Avaliacao
+              |--< Equivalencia
+              |-- Certificado
+              `--< IncidenteIntegridade
 ```
 
 ---
@@ -245,49 +357,29 @@ Aluno ──< Matricula >── Curso
 **Pré-requisitos:** Python 3.12+
 
 ```bash
-# Clone o repositório
 git clone <url-do-repositorio>
 cd plataforma_ensino
 
-# Crie e ative um ambiente virtual
 python -m venv venv
 source venv/bin/activate  # Linux/macOS
 venv\Scripts\activate     # Windows
 
-# Instale as dependências
 pip install -r requirements.txt
-
-# Execute as migrações
 python manage.py migrate
-
-# Crie um superusuário
 python manage.py createsuperuser
-
-# Inicie o servidor de desenvolvimento
 python manage.py runserver
 ```
 
-Acesse em [http://localhost:8000](http://localhost:8000)
+Acesse:
 
-O painel administrativo está disponível em [http://localhost:8000/admin](http://localhost:8000/admin)
-
----
-
-## URLs
-
-| Rota | View | Descrição |
-|------|------|-----------|
-| `/` | `home` | Página inicial com lista de cursos |
-| `/<curso_id>/` | `curso_detail` | Detalhes do curso |
-| `/<curso_id>/modulo/<modulo_id>/` | `modulo_detail` | Detalhes do módulo |
-| `/<curso_id>/modulo/<modulo_id>/aula/<aula_id>/` | `aula_detail` | Conteúdo da aula |
-| `/admin/` | — | Painel administrativo Django |
+- Aplicação: [http://localhost:8000](http://localhost:8000)
+- Admin: [http://localhost:8000/admin](http://localhost:8000/admin)
 
 ---
 
 ## Dependências
 
-```
+```text
 Django==6.0.3
 asgiref==3.11.1
 sqlparse==0.5.5
