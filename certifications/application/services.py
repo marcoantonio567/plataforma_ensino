@@ -5,8 +5,8 @@ from certifications.domain.policies import (
     renew_certificate,
     revoke_certificate,
     suspend_certificate,
-    validate_certificate_issuance,
 )
+from certifications.domain.services import validar_emissao_certificado
 from certifications.infrastructure.repositories import DjangoCertificateRepository
 
 
@@ -16,13 +16,13 @@ def issue(enrollment, expiration=None, repository=None):
     rule = enrollment.regra_curso
     minimum_grade = rule.media_minima if rule is not None else 0
 
-    validate_certificate_issuance(
+    validar_emissao_certificado(
         enrollment,
-        has_completed_required_project=repository.has_completed_project(
+        concluiu_projeto_obrigatorio=repository.has_completed_project(
             enrollment,
             minimum_grade=minimum_grade,
         ),
-        has_severe_integrity_incident=repository.has_severe_integrity_incident(enrollment),
+        possui_incidente_grave=repository.has_severe_integrity_incident(enrollment),
     )
 
     certificate = issue_certificate(

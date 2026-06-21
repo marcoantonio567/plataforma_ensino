@@ -35,4 +35,6 @@ repositorios alternativos para testes ou outra persistencia.
 - Selectors concentram consultas de leitura.
 - Repositories encapsulam detalhes do ORM.
 - Policies guardam regras puras que podem ser testadas sem banco.
+- Domain Services guardam operacoes de negocio que nao pertencem naturalmente a
+  uma unica Entity ou Value Object.
 - Imports publicos antigos sao mantidos para preservar URLs, admin e migrations.

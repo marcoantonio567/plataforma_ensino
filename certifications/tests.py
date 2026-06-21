@@ -6,6 +6,7 @@ from django.test import TestCase
 from assessments.models import Avaliacao, AvaliacaoRealizada, ProjetoPratico
 from certifications.application.services import issue, renew, revoke, suspend
 from certifications.domain.policies import CertificationDenied
+from certifications.domain.services import AvaliadorElegibilidadeCertificado
 from certifications.models import (
     Certificado,
     GravidadeIncidente,
@@ -102,3 +103,19 @@ class CertificateServicesTest(TestCase):
 
         certificate = issue(self.enrollment)
         self.assertEqual(certificate.status, StatusCertificado.EMITIDO)
+
+    def test_domain_service_validates_certificate_eligibility(self):
+        AvaliadorElegibilidadeCertificado.validar_emissao(
+            self.enrollment,
+            concluiu_projeto_obrigatorio=False,
+            possui_incidente_grave=False,
+        )
+
+        self.enrollment.status = Matricula.Status.ATIVA
+
+        with self.assertRaises(CertificationDenied):
+            AvaliadorElegibilidadeCertificado.validar_emissao(
+                self.enrollment,
+                concluiu_projeto_obrigatorio=False,
+                possui_incidente_grave=False,
+            )
