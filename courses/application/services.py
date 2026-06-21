@@ -6,7 +6,7 @@ from courses.infrastructure.repositories import DjangoCourseRepository
 @transaction.atomic
 def create_module(course, *, name: str, repository=None):
     repository = repository or DjangoCourseRepository()
-    return repository.create_module(
+    return repository.add_module_to_course(
         course,
         name=name,
         order=repository.next_module_order(course.pk),
@@ -16,7 +16,7 @@ def create_module(course, *, name: str, repository=None):
 @transaction.atomic
 def create_lesson(course, module, *, title: str, duration: int, content: str, repository=None):
     repository = repository or DjangoCourseRepository()
-    return repository.create_lesson(
+    return repository.add_lesson_to_course(
         course,
         module,
         title=title,
@@ -28,9 +28,9 @@ def create_lesson(course, module, *, title: str, duration: int, content: str, re
 
 @transaction.atomic
 def delete_module(course_id: int, module_id: int, repository=None):
-    (repository or DjangoCourseRepository()).delete_module(course_id, module_id)
+    (repository or DjangoCourseRepository()).remove_module_from_course(course_id, module_id)
 
 
 @transaction.atomic
 def delete_lesson(course_id: int, lesson_id: int, repository=None):
-    (repository or DjangoCourseRepository()).delete_lesson(course_id, lesson_id)
+    (repository or DjangoCourseRepository()).remove_lesson_from_course(course_id, lesson_id)

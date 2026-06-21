@@ -26,7 +26,7 @@ def issue(enrollment, expiration=None, repository=None):
     )
 
     certificate = issue_certificate(
-        repository.get_or_create(enrollment, expiration=expiration),
+        repository.get_or_create_for_enrollment(enrollment, expiration=expiration),
         expiration=expiration,
     )
     repository.save(certificate, fields=["status", "validade"])

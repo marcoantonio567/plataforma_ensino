@@ -5,13 +5,22 @@ from courses.models import Aula, Curso, Modulo
 
 
 class DjangoCourseRepository:
+    def get(self, course_id: int):
+        return Curso.objects.get(pk=course_id)
+
+    def save(self, course, *, fields: list[str] | None = None) -> None:
+        if fields is None:
+            course.save()
+        else:
+            course.save(update_fields=fields)
+
     def next_module_order(self, course_id: int) -> int:
         maximum = Modulo.objects.filter(curso_id=course_id).aggregate(
             maximum=Max("ordem")
         )["maximum"]
         return next_order(maximum)
 
-    def create_module(self, course, *, name: str, order: int):
+    def add_module_to_course(self, course, *, name: str, order: int):
         module = course.adicionar_modulo(nome=name, ordem=order)
         module.save()
         return module
@@ -22,7 +31,7 @@ class DjangoCourseRepository:
         )["maximum"]
         return next_order(maximum)
 
-    def create_lesson(
+    def add_lesson_to_course(
         self,
         course,
         module,
@@ -42,13 +51,13 @@ class DjangoCourseRepository:
         lesson.save()
         return lesson
 
-    def delete_module(self, course_id: int, module_id: int) -> None:
-        course = Curso.objects.get(pk=course_id)
+    def remove_module_from_course(self, course_id: int, module_id: int) -> None:
+        course = self.get(course_id)
         module = Modulo.objects.get(pk=module_id, curso=course)
         course.remover_modulo(module)
 
-    def delete_lesson(self, course_id: int, lesson_id: int) -> None:
-        course = Curso.objects.get(pk=course_id)
+    def remove_lesson_from_course(self, course_id: int, lesson_id: int) -> None:
+        course = self.get(course_id)
         lesson = Aula.objects.select_related("modulo").get(
             pk=lesson_id,
             modulo__curso=course,

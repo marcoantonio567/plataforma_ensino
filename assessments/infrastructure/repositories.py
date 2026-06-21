@@ -2,7 +2,7 @@ from assessments.models import AvaliacaoRealizada
 
 
 class DjangoAssessmentRepository:
-    def record_grade(self, *, student, assessment, grade: float, date):
+    def save_result_for_assessment(self, *, student, assessment, grade: float, date):
         result, _ = AvaliacaoRealizada.objects.get_or_create(
             aluno=student,
             avaliacao=assessment,

@@ -3,7 +3,7 @@ from certifications.models import Certificado, GravidadeIncidente, IncidenteInte
 
 
 class DjangoCertificateRepository:
-    def get_or_create(self, enrollment, *, expiration=None):
+    def get_or_create_for_enrollment(self, enrollment, *, expiration=None):
         certificate, _ = Certificado.objects.get_or_create(
             matricula=enrollment,
             defaults={"validade": expiration},
@@ -24,5 +24,8 @@ class DjangoCertificateRepository:
             gravidade=GravidadeIncidente.GRAVE,
         ).exists()
 
-    def save(self, certificate, *, fields: list[str]) -> None:
-        certificate.save(update_fields=fields)
+    def save(self, certificate, *, fields: list[str] | None = None) -> None:
+        if fields is None:
+            certificate.save()
+        else:
+            certificate.save(update_fields=fields)
