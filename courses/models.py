@@ -50,6 +50,27 @@ class Curso(models.Model):
             raise ValueError("O nome do modulo e obrigatorio.")
         return Modulo(curso=self, nome=nome.strip(), ordem=int(Ordem(ordem)))
 
+    def adicionar_aula(self, modulo, *, titulo, duracao, conteudo="", ordem):
+        self._ensure_modulo_belongs_to_course(modulo)
+        return modulo._adicionar_aula(
+            titulo=titulo,
+            duracao=duracao,
+            conteudo=conteudo,
+            ordem=ordem,
+        )
+
+    def remover_modulo(self, modulo):
+        self._ensure_modulo_belongs_to_course(modulo)
+        modulo.delete()
+
+    def remover_aula(self, aula):
+        self._ensure_modulo_belongs_to_course(aula.modulo)
+        aula.delete()
+
+    def _ensure_modulo_belongs_to_course(self, modulo):
+        if modulo.curso_id != self.pk:
+            raise ValueError("O modulo informado nao pertence a este curso.")
+
 
 class RegraCurso(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="regras")
@@ -123,7 +144,7 @@ class Modulo(models.Model):
         self._validate_value_objects()
         return super().save(*args, **kwargs)
 
-    def adicionar_aula(self, *, titulo, duracao, conteudo="", ordem):
+    def _adicionar_aula(self, *, titulo, duracao, conteudo="", ordem):
         if not titulo or not titulo.strip():
             raise ValueError("O titulo da aula e obrigatorio.")
         duracao = DuracaoAula(duracao)
@@ -134,6 +155,14 @@ class Modulo(models.Model):
             duracao=int(duracao),
             conteudo=conteudo,
             ordem=int(ordem),
+        )
+
+    def adicionar_aula(self, *, titulo, duracao, conteudo="", ordem):
+        return self._adicionar_aula(
+            titulo=titulo,
+            duracao=duracao,
+            conteudo=conteudo,
+            ordem=ordem,
         )
 
     def reordenar(self, nova_ordem):

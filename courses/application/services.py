@@ -14,9 +14,10 @@ def create_module(course, *, name: str, repository=None):
 
 
 @transaction.atomic
-def create_lesson(module, *, title: str, duration: int, content: str, repository=None):
+def create_lesson(course, module, *, title: str, duration: int, content: str, repository=None):
     repository = repository or DjangoCourseRepository()
     return repository.create_lesson(
+        course,
         module,
         title=title,
         duration=duration,

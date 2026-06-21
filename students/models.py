@@ -42,23 +42,31 @@ class Aluno(models.Model):
         return Matricula.objects.create(aluno=self, curso=curso, regra_curso=regra)
 
     def trancar_matricula(self, matricula):
+        self._ensure_matricula_belongs_to_student(matricula)
         matricula.trancar()
         matricula.save()
 
     def solicitar_aproveitamento(self, matricula, modulo, justificativa=""):
-        return Aproveitamento.objects.create(
-            matricula=matricula, modulo=modulo, justificativa=justificativa
-        )
+        self._ensure_matricula_belongs_to_student(matricula)
+        solicitacao = matricula.solicitar_aproveitamento(modulo, justificativa=justificativa)
+        solicitacao.save()
+        return solicitacao
 
     def solicitar_segunda_chamada(self, matricula, avaliacao, justificativa=""):
-        return SegundaChamada.objects.create(
-            matricula=matricula, avaliacao=avaliacao, justificativa=justificativa
-        )
+        self._ensure_matricula_belongs_to_student(matricula)
+        solicitacao = matricula.solicitar_segunda_chamada(avaliacao, justificativa=justificativa)
+        solicitacao.save()
+        return solicitacao
 
     def solicitar_revisao_nota(self, matricula, avaliacao, justificativa=""):
-        return RevisaoNota.objects.create(
-            matricula=matricula, avaliacao=avaliacao, justificativa=justificativa
-        )
+        self._ensure_matricula_belongs_to_student(matricula)
+        solicitacao = matricula.solicitar_revisao_nota(avaliacao, justificativa=justificativa)
+        solicitacao.save()
+        return solicitacao
+
+    def _ensure_matricula_belongs_to_student(self, matricula):
+        if matricula.aluno_id != self.pk:
+            raise ValueError("A matricula informada nao pertence a este aluno.")
 
 
 class Matricula(models.Model):
@@ -165,10 +173,69 @@ class Matricula(models.Model):
             self.carga_horaria_cumprida = int(carga_horaria)
         return self
 
-    def emitir_certificado(self, validade=None):
-        from certifications.application.services import issue
+    def solicitar_aproveitamento(self, modulo, justificativa=""):
+        self._ensure_status([self.Status.ATIVA], "solicitar aproveitamento para")
+        self._ensure_modulo_belongs_to_course(modulo)
+        return Aproveitamento(matricula=self, modulo=modulo, justificativa=justificativa)
 
-        return issue(self, validade)
+    def solicitar_segunda_chamada(self, avaliacao, justificativa=""):
+        self._ensure_status([self.Status.ATIVA], "solicitar segunda chamada para")
+        self._ensure_avaliacao_belongs_to_course(avaliacao)
+        return SegundaChamada(
+            matricula=self,
+            avaliacao=avaliacao,
+            justificativa=justificativa,
+        )
+
+    def solicitar_revisao_nota(self, avaliacao, justificativa=""):
+        self._ensure_status([self.Status.ATIVA], "solicitar revisao de nota para")
+        self._ensure_avaliacao_belongs_to_course(avaliacao)
+        return RevisaoNota(
+            matricula=self,
+            avaliacao=avaliacao,
+            justificativa=justificativa,
+        )
+
+    def registrar_equivalencia(
+        self,
+        *,
+        instituicao_origem,
+        disciplina_origem,
+        disciplina_destino,
+    ):
+        self._ensure_status([self.Status.ATIVA], "registrar equivalencia para")
+        return Equivalencia(
+            matricula=self,
+            instituicao_origem=instituicao_origem,
+            disciplina_origem=disciplina_origem,
+            disciplina_destino=disciplina_destino,
+        )
+
+    def registrar_incidente_integridade(self, *, tipo, gravidade):
+        from certifications.models import IncidenteIntegridade
+
+        return IncidenteIntegridade(
+            matricula=self,
+            tipo=tipo,
+            gravidade=gravidade,
+        )
+
+    def _ensure_modulo_belongs_to_course(self, modulo):
+        if modulo.curso_id != self.curso_id:
+            raise InvalidEnrollmentTransition(
+                "O modulo informado nao pertence ao curso da matricula."
+            )
+
+    def _ensure_avaliacao_belongs_to_course(self, avaliacao):
+        if avaliacao.modulo.curso_id != self.curso_id:
+            raise InvalidEnrollmentTransition(
+                "A avaliacao informada nao pertence ao curso da matricula."
+            )
+
+    def emitir_certificado(self, validade=None):
+        from certifications.models import Certificado
+
+        return Certificado(matricula=self, validade=validade)
 
 
 class Solicitacao(models.Model):

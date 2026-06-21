@@ -9,11 +9,10 @@ from certifications.domain.policies import CertificationDenied
 from certifications.models import (
     Certificado,
     GravidadeIncidente,
-    IncidenteIntegridade,
     StatusCertificado,
     TipoIncidente,
 )
-from courses.models import Curso, Modulo, RegraCurso
+from courses.models import Curso, RegraCurso
 from students.models import Aluno, Matricula
 
 
@@ -71,11 +70,11 @@ class CertificateServicesTest(TestCase):
             issue(self.enrollment)
 
     def test_denies_certificate_when_there_is_severe_integrity_incident(self):
-        IncidenteIntegridade.objects.create(
-            matricula=self.enrollment,
+        incident = self.enrollment.registrar_incidente_integridade(
             tipo=TipoIncidente.FRAUDE,
             gravidade=GravidadeIncidente.GRAVE,
         )
+        incident.save()
 
         with self.assertRaises(CertificationDenied):
             issue(self.enrollment)
@@ -87,7 +86,8 @@ class CertificateServicesTest(TestCase):
         with self.assertRaises(CertificationDenied):
             issue(self.enrollment)
 
-        module = Modulo.objects.create(curso=self.course, nome="Final", ordem=1)
+        module = self.course.adicionar_modulo(nome="Final", ordem=1)
+        module.save()
         project = ProjetoPratico.objects.create(
             modulo=module,
             tipo=Avaliacao.Tipo.PROJETO_PRATICO,

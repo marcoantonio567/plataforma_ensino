@@ -62,3 +62,12 @@ class EnrollmentServicesTest(TestCase):
 
         with self.assertRaises(Exception):
             PercentualProgresso(10).valor = 20
+
+    def test_enrollment_aggregate_rejects_request_for_module_from_another_course(self):
+        enrollment = enroll_student(self.student, self.course).enrollment
+        other_course = Curso.objects.create(nome="Outro curso", carga_horaria=5)
+        other_module = other_course.adicionar_modulo(nome="Modulo externo", ordem=1)
+        other_module.save()
+
+        with self.assertRaises(InvalidEnrollmentTransition):
+            enrollment.solicitar_aproveitamento(other_module)

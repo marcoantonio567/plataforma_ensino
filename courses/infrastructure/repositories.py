@@ -1,7 +1,7 @@
 from django.db.models import Max
 
 from courses.domain.policies import next_order
-from courses.models import Aula, Modulo
+from courses.models import Aula, Curso, Modulo
 
 
 class DjangoCourseRepository:
@@ -24,6 +24,7 @@ class DjangoCourseRepository:
 
     def create_lesson(
         self,
+        course,
         module,
         *,
         title: str,
@@ -31,7 +32,8 @@ class DjangoCourseRepository:
         content: str,
         order: int,
     ):
-        lesson = module.adicionar_aula(
+        lesson = course.adicionar_aula(
+            module,
             titulo=title,
             duracao=duration,
             conteudo=content,
@@ -41,7 +43,14 @@ class DjangoCourseRepository:
         return lesson
 
     def delete_module(self, course_id: int, module_id: int) -> None:
-        Modulo.objects.filter(pk=module_id, curso_id=course_id).delete()
+        course = Curso.objects.get(pk=course_id)
+        module = Modulo.objects.get(pk=module_id, curso=course)
+        course.remover_modulo(module)
 
     def delete_lesson(self, course_id: int, lesson_id: int) -> None:
-        Aula.objects.filter(pk=lesson_id, modulo__curso_id=course_id).delete()
+        course = Curso.objects.get(pk=course_id)
+        lesson = Aula.objects.select_related("modulo").get(
+            pk=lesson_id,
+            modulo__curso=course,
+        )
+        course.remover_aula(lesson)

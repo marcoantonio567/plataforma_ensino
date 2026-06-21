@@ -21,12 +21,7 @@ class DjangoStudentRepository:
         return Matricula.objects.filter(aluno=student, curso=course).first()
 
     def enroll(self, student, course):
-        rule = course.regra_vigente()
-        return Matricula.objects.create(
-            aluno=student,
-            curso=course,
-            regra_curso=rule,
-        )
+        return student.matricular(course)
 
     def save_enrollment(self, enrollment, *, fields: list[str]) -> None:
         enrollment.save(update_fields=fields)

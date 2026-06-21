@@ -16,6 +16,7 @@ class CourseServicesTest(TestCase):
         first = create_module(self.course, name="Dominio")
         second = create_module(self.course, name="Aplicacao")
         lesson = create_lesson(
+            self.course,
             first,
             title="Entidades",
             duration=30,
@@ -50,3 +51,16 @@ class CourseServicesTest(TestCase):
 
         with self.assertRaises(Exception):
             DuracaoAula(30).valor = 45
+
+    def test_course_aggregate_rejects_lesson_for_module_from_another_course(self):
+        other_course = Curso.objects.create(nome="Outro", carga_horaria=10)
+        other_module = create_module(other_course, name="Modulo externo")
+
+        with self.assertRaises(ValueError):
+            self.course.adicionar_aula(
+                other_module,
+                titulo="Aula externa",
+                duracao=30,
+                conteudo="",
+                ordem=1,
+            )

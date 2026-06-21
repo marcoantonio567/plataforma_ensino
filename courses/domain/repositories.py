@@ -10,6 +10,7 @@ class CourseRepository(Protocol):
 
     def create_lesson(
         self,
+        course,
         module,
         *,
         title: str,
