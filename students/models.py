@@ -15,7 +15,7 @@ class Aluno(models.Model):
         return self.usuario.get_full_name() or self.usuario.username
 
     def matricular(self, curso):
-        regra = getattr(curso, "regra", None)
+        regra = curso.regra_vigente()
         return Matricula.objects.create(aluno=self, curso=curso, regra_curso=regra)
 
     def trancar_matricula(self, matricula):
@@ -71,6 +71,12 @@ class Matricula(models.Model):
 
     def __str__(self):
         return f"{self.aluno} — {self.curso} ({self.get_status_display()})"
+
+
+    def emitir_certificado(self, validade=None):
+        from certifications.application.services import issue
+
+        return issue(self, validade)
 
 
 class Solicitacao(models.Model):

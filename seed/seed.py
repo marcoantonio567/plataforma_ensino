@@ -12,14 +12,17 @@ eles não serão duplicados.
 import os
 import sys
 import django
+from django.utils import timezone
 
 # Garante que o manage.py está no path independente de onde o script é chamado
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, BASE_DIR)
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_PARENT = os.path.dirname(PROJECT_DIR)
+sys.path.insert(0, PROJECT_DIR)
+sys.path.insert(0, PROJECT_PARENT)
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "plataforma_ensino.settings")
 django.setup()
 
-from courses.models import Aula, Curso, Modulo  # noqa: E402 (import após setup)
+from courses.models import Aula, Curso, Modulo, RegraCurso  # noqa: E402 (import após setup)
 
 # ---------------------------------------------------------------------------
 # Dados dos cursos
@@ -193,9 +196,26 @@ def seed():
         )
 
         if not novo:
+            RegraCurso.objects.get_or_create(
+                curso=curso,
+                data_inicio=timezone.localdate(),
+                defaults={
+                    "media_minima": 6.0,
+                    "carga_horaria_minima": curso.carga_horaria,
+                    "exige_projeto_final": False,
+                },
+            )
             print(f"  [ignorado] Curso já existe: {curso.nome}")
             ignorados += 1
             continue
+
+        RegraCurso.objects.create(
+            curso=curso,
+            data_inicio=timezone.localdate(),
+            media_minima=6.0,
+            carga_horaria_minima=curso.carga_horaria,
+            exige_projeto_final=False,
+        )
 
         for ordem_modulo, dados_modulo in enumerate(dados_curso["modulos"], start=1):
             modulo = Modulo.objects.create(

@@ -1,7 +1,8 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils import timezone
 
-from courses.models import Curso
+from courses.models import Curso, RegraCurso
 from students.application.services import (
     cancel_enrollment,
     enroll_student,
@@ -15,6 +16,12 @@ class EnrollmentServicesTest(TestCase):
         self.user = User.objects.create_user("student")
         self.student = get_or_create_student(self.user)
         self.course = Curso.objects.create(nome="Arquitetura", carga_horaria=10)
+        self.rule = RegraCurso.objects.create(
+            curso=self.course,
+            data_inicio=timezone.localdate(),
+            media_minima=7.0,
+            carga_horaria_minima=10,
+        )
 
     def test_enrollment_can_be_cancelled_and_reactivated(self):
         created = enroll_student(self.student, self.course)
@@ -22,5 +29,6 @@ class EnrollmentServicesTest(TestCase):
         reactivated = enroll_student(self.student, self.course)
 
         self.assertTrue(created.created)
+        self.assertEqual(created.enrollment.regra_curso, self.rule)
         self.assertTrue(reactivated.reactivated)
         self.assertEqual(reactivated.enrollment.status, Matricula.Status.ATIVA)

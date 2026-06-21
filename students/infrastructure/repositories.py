@@ -20,7 +20,7 @@ class DjangoStudentRepository:
         return Matricula.objects.filter(aluno=student, curso=course).first()
 
     def enroll(self, student, course):
-        rule = getattr(course, "regra", None)
+        rule = course.regra_vigente()
         return Matricula.objects.create(
             aluno=student,
             curso=course,

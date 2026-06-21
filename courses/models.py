@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class TipoPreRequisito(models.TextChoices):
@@ -20,8 +21,18 @@ class Curso(models.Model):
     def __str__(self):
         return self.nome
 
+    def regra_vigente(self, data=None):
+        data = data or timezone.localdate()
+        return (
+            self.regras.filter(data_inicio__lte=data)
+            .filter(models.Q(data_fim__isnull=True) | models.Q(data_fim__gte=data))
+            .order_by("-data_inicio")
+            .first()
+        )
+
 
 class RegraCurso(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="regras")
     media_minima = models.FloatField(default=6.0)
     carga_horaria_minima = models.PositiveIntegerField(default=0, help_text="Em horas")
     exige_projeto_final = models.BooleanField(default=False)
@@ -31,6 +42,7 @@ class RegraCurso(models.Model):
     class Meta:
         verbose_name = "Regra de Curso"
         verbose_name_plural = "Regras de Curso"
+        ordering = ["curso", "-data_inicio"]
 
     def __str__(self):
         return f"Regra (início: {self.data_inicio})"

@@ -30,6 +30,9 @@ Sistema de gerenciamento de cursos e aprendizado online desenvolvido com Django.
 - Criação e gerenciamento básico de cursos, módulos e aulas
 - Registro, login e logout de estudantes
 - Matrícula, listagem de matrículas e cancelamento de matrícula
+- Registro da regra de curso vigente no momento da matrícula
+- Emissão de certificados condicionada a média, carga horária, projeto final e incidentes graves
+- Classificação de incidentes de integridade por gravidade
 - Painel administrativo via Django Admin
 
 ### Modeladas / em evolução
@@ -366,6 +369,7 @@ venv\Scripts\activate     # Windows
 
 pip install -r requirements.txt
 python manage.py migrate
+python seed/seed.py  # opcional: popula cursos, modulos, aulas e regras de curso de exemplo
 python manage.py createsuperuser
 python manage.py runserver
 ```
