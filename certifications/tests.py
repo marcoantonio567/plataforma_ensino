@@ -54,6 +54,9 @@ class CertificateServicesTest(TestCase):
         revoke(certificate)
         self.assertEqual(certificate.status, StatusCertificado.REVOGADO)
 
+        with self.assertRaises(ValueError):
+            certificate.renovar(date(2031, 1, 1))
+
     def test_issues_certificate_when_enrollment_meets_rule(self):
         certificate = issue(self.enrollment)
 

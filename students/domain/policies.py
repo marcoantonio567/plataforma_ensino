@@ -12,15 +12,13 @@ def reactivate_cancelled_enrollment(enrollment) -> bool:
     if enrollment.status != EnrollmentStatus.CANCELLED:
         return False
 
-    enrollment.status = EnrollmentStatus.ACTIVE.value
+    enrollment.reativar()
     return True
 
 
 def cancel_enrollment(enrollment):
-    enrollment.status = EnrollmentStatus.CANCELLED.value
-    return enrollment
+    return enrollment.cancelar()
 
 
 def lock_enrollment(enrollment):
-    enrollment.status = EnrollmentStatus.LOCKED.value
-    return enrollment
+    return enrollment.trancar()

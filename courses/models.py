@@ -27,6 +27,13 @@ class Curso(models.Model):
         data = data or timezone.localdate()
         return current_course_rule(self.regras.all(), date=data)
 
+    def adicionar_modulo(self, *, nome, ordem):
+        if not nome or not nome.strip():
+            raise ValueError("O nome do modulo e obrigatorio.")
+        if ordem < 1:
+            raise ValueError("A ordem do modulo deve ser maior que zero.")
+        return Modulo(curso=self, nome=nome.strip(), ordem=ordem)
+
 
 class RegraCurso(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="regras")
@@ -45,6 +52,21 @@ class RegraCurso(models.Model):
         return f"Regra (início: {self.data_inicio})"
 
 
+    def esta_vigente(self, data=None):
+        data = data or timezone.localdate()
+        return self.data_inicio <= data and (
+            self.data_fim is None or self.data_fim >= data
+        )
+
+    def validar_periodo(self):
+        if self.data_fim is not None and self.data_fim < self.data_inicio:
+            raise ValueError("A data final da regra nao pode ser anterior ao inicio.")
+        return self
+
+    def exige_projeto(self):
+        return self.exige_projeto_final
+
+
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="modulos")
     nome = models.CharField(max_length=200)
@@ -58,6 +80,28 @@ class Modulo(models.Model):
 
     def __str__(self):
         return f"{self.curso} — Módulo {self.ordem}: {self.nome}"
+
+
+    def adicionar_aula(self, *, titulo, duracao, conteudo="", ordem):
+        if not titulo or not titulo.strip():
+            raise ValueError("O titulo da aula e obrigatorio.")
+        if duracao <= 0:
+            raise ValueError("A duracao da aula deve ser maior que zero.")
+        if ordem < 1:
+            raise ValueError("A ordem da aula deve ser maior que zero.")
+        return Aula(
+            modulo=self,
+            titulo=titulo.strip(),
+            duracao=duracao,
+            conteudo=conteudo,
+            ordem=ordem,
+        )
+
+    def reordenar(self, nova_ordem):
+        if nova_ordem < 1:
+            raise ValueError("A ordem do modulo deve ser maior que zero.")
+        self.ordem = nova_ordem
+        return self
 
 
 class Aula(models.Model):
@@ -77,10 +121,36 @@ class Aula(models.Model):
         return f"{self.modulo} — Aula {self.ordem}: {self.titulo}"
 
 
+    def reordenar(self, nova_ordem):
+        if nova_ordem < 1:
+            raise ValueError("A ordem da aula deve ser maior que zero.")
+        self.ordem = nova_ordem
+        return self
+
+    def atualizar_conteudo(self, *, titulo=None, conteudo=None, duracao=None):
+        if titulo is not None:
+            if not titulo.strip():
+                raise ValueError("O titulo da aula e obrigatorio.")
+            self.titulo = titulo.strip()
+        if conteudo is not None:
+            self.conteudo = conteudo
+        if duracao is not None:
+            if duracao <= 0:
+                raise ValueError("A duracao da aula deve ser maior que zero.")
+            self.duracao = duracao
+        return self
+
+
 class PreRequisito(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="pre_requisitos")
     tipo = models.CharField(max_length=10, choices=TipoPreRequisito.choices)
     referencia_id = models.PositiveIntegerField(help_text="ID do Curso ou Módulo exigido")
+
+    def referencia_curso(self):
+        return self.tipo == TipoPreRequisito.CURSO
+
+    def referencia_modulo(self):
+        return self.tipo == TipoPreRequisito.MODULO
 
     class Meta:
         verbose_name = "Pré-requisito"

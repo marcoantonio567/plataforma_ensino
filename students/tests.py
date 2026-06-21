@@ -8,6 +8,7 @@ from students.application.services import (
     enroll_student,
     get_or_create_student,
 )
+from students.domain.exceptions import InvalidEnrollmentTransition
 from students.models import Matricula
 
 
@@ -32,3 +33,17 @@ class EnrollmentServicesTest(TestCase):
         self.assertEqual(created.enrollment.regra_curso, self.rule)
         self.assertTrue(reactivated.reactivated)
         self.assertEqual(reactivated.enrollment.status, Matricula.Status.ATIVA)
+
+    def test_completed_enrollment_cannot_be_cancelled(self):
+        result = enroll_student(self.student, self.course)
+        enrollment = result.enrollment
+        enrollment.concluir(media_final=8.0, carga_horaria_cumprida=10)
+
+        with self.assertRaises(InvalidEnrollmentTransition):
+            enrollment.cancelar()
+
+    def test_enrollment_rejects_invalid_progress(self):
+        enrollment = enroll_student(self.student, self.course).enrollment
+
+        with self.assertRaises(InvalidEnrollmentTransition):
+            enrollment.atualizar_progresso(120)

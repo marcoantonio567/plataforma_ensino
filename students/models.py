@@ -1,7 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 
-from students.domain.policies import lock_enrollment
+from students.domain.exceptions import (
+    InvalidEnrollmentTransition,
+    InvalidRequestTransition,
+)
 
 
 class Aluno(models.Model):
@@ -21,7 +24,7 @@ class Aluno(models.Model):
         return Matricula.objects.create(aluno=self, curso=curso, regra_curso=regra)
 
     def trancar_matricula(self, matricula):
-        lock_enrollment(matricula)
+        matricula.trancar()
         matricula.save()
 
     def solicitar_aproveitamento(self, matricula, modulo, justificativa=""):
@@ -75,6 +78,52 @@ class Matricula(models.Model):
         return f"{self.aluno} — {self.curso} ({self.get_status_display()})"
 
 
+    def _ensure_status(self, allowed_statuses, operation):
+        if self.status not in allowed_statuses:
+            allowed = ", ".join(allowed_statuses)
+            raise InvalidEnrollmentTransition(
+                f"Nao e possivel {operation} uma matricula com status {self.status}. "
+                f"Status permitidos: {allowed}."
+            )
+
+    def cancelar(self):
+        self._ensure_status([self.Status.ATIVA, self.Status.TRANCADA], "cancelar")
+        self.status = self.Status.CANCELADA
+        return self
+
+    def trancar(self):
+        self._ensure_status([self.Status.ATIVA], "trancar")
+        self.status = self.Status.TRANCADA
+        return self
+
+    def reativar(self):
+        self._ensure_status([self.Status.CANCELADA, self.Status.TRANCADA], "reativar")
+        self.status = self.Status.ATIVA
+        return self
+
+    def concluir(self, *, media_final, carga_horaria_cumprida=None):
+        self._ensure_status([self.Status.ATIVA], "concluir")
+        if media_final is None:
+            raise InvalidEnrollmentTransition("A media final e obrigatoria para concluir.")
+
+        self.media_final = float(media_final)
+        if carga_horaria_cumprida is not None:
+            self.carga_horaria_cumprida = carga_horaria_cumprida
+        self.progresso = 100.0
+        self.status = self.Status.CONCLUIDA
+        return self
+
+    def atualizar_progresso(self, percentual, *, carga_horaria_cumprida=None):
+        self._ensure_status([self.Status.ATIVA], "atualizar o progresso de")
+        percentual = float(percentual)
+        if not 0 <= percentual <= 100:
+            raise InvalidEnrollmentTransition("O progresso deve estar entre 0 e 100.")
+
+        self.progresso = percentual
+        if carga_horaria_cumprida is not None:
+            self.carga_horaria_cumprida = carga_horaria_cumprida
+        return self
+
     def emitir_certificado(self, validade=None):
         from certifications.application.services import issue
 
@@ -103,6 +152,31 @@ class Solicitacao(models.Model):
 
     def __str__(self):
         return f"Solicitação #{self.pk} ({self.get_status_display()})"
+
+
+    def iniciar_analise(self):
+        if self.status != self.Status.PENDENTE:
+            raise InvalidRequestTransition(
+                "Somente solicitacoes pendentes podem entrar em analise."
+            )
+        self.status = self.Status.EM_ANALISE
+        return self
+
+    def aprovar(self):
+        if self.status not in [self.Status.PENDENTE, self.Status.EM_ANALISE]:
+            raise InvalidRequestTransition(
+                "Somente solicitacoes pendentes ou em analise podem ser aprovadas."
+            )
+        self.status = self.Status.APROVADA
+        return self
+
+    def rejeitar(self):
+        if self.status not in [self.Status.PENDENTE, self.Status.EM_ANALISE]:
+            raise InvalidRequestTransition(
+                "Somente solicitacoes pendentes ou em analise podem ser rejeitadas."
+            )
+        self.status = self.Status.REJEITADA
+        return self
 
 
 class RevisaoNota(Solicitacao):
@@ -152,6 +226,14 @@ class Equivalencia(models.Model):
     disciplina_origem = models.CharField(max_length=200)
     disciplina_destino = models.CharField(max_length=200)
     aprovado = models.BooleanField(default=False)
+
+    def aprovar(self):
+        self.aprovado = True
+        return self
+
+    def reprovar(self):
+        self.aprovado = False
+        return self
 
     class Meta:
         verbose_name = "Equivalência"

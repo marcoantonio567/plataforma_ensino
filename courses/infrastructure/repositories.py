@@ -12,7 +12,9 @@ class DjangoCourseRepository:
         return next_order(maximum)
 
     def create_module(self, course, *, name: str, order: int):
-        return Modulo.objects.create(curso=course, nome=name, ordem=order)
+        module = course.adicionar_modulo(nome=name, ordem=order)
+        module.save()
+        return module
 
     def next_lesson_order(self, module_id: int) -> int:
         maximum = Aula.objects.filter(modulo_id=module_id).aggregate(
@@ -29,13 +31,14 @@ class DjangoCourseRepository:
         content: str,
         order: int,
     ):
-        return Aula.objects.create(
-            modulo=module,
+        lesson = module.adicionar_aula(
             titulo=title,
             duracao=duration,
             conteudo=content,
             ordem=order,
         )
+        lesson.save()
+        return lesson
 
     def delete_module(self, course_id: int, module_id: int) -> None:
         Modulo.objects.filter(pk=module_id, curso_id=course_id).delete()

@@ -59,17 +59,32 @@ class Certificado(models.Model):
     def __str__(self):
         return f"Certificado - {self.matricula}"
 
-    def revogar(self):
-        from certifications.application.services import revoke
+    def emitir(self, validade=None):
+        if self.status == StatusCertificado.REVOGADO:
+            raise ValueError("Certificados revogados nao podem ser emitidos novamente.")
+        self.status = StatusCertificado.EMITIDO
+        if validade is not None:
+            self.validade = validade
+        return self
 
-        return revoke(self)
+    def revogar(self):
+        if self.status == StatusCertificado.REVOGADO:
+            raise ValueError("O certificado ja esta revogado.")
+        self.status = StatusCertificado.REVOGADO
+        return self
 
     def suspender(self):
-        from certifications.application.services import suspend
-
-        return suspend(self)
+        if self.status == StatusCertificado.REVOGADO:
+            raise ValueError("Certificados revogados nao podem ser suspensos.")
+        if self.status == StatusCertificado.SUSPENSO:
+            raise ValueError("O certificado ja esta suspenso.")
+        self.status = StatusCertificado.SUSPENSO
+        return self
 
     def renovar(self, nova_validade=None):
-        from certifications.application.services import renew
-
-        return renew(self, nova_validade)
+        if self.status == StatusCertificado.REVOGADO:
+            raise ValueError("Certificados revogados nao podem ser renovados.")
+        self.status = StatusCertificado.EMITIDO
+        if nova_validade is not None:
+            self.validade = nova_validade
+        return self

@@ -1,5 +1,7 @@
 from django.db import models
 
+from assessments.domain.policies import validate_grade
+
 
 class Avaliacao(models.Model):
     class Tipo(models.TextChoices):
@@ -21,9 +23,25 @@ class Avaliacao(models.Model):
     def __str__(self):
         return f"[{self.get_tipo_display()}] — {self.modulo}"
 
+    def nota_ponderada(self, nota):
+        return validate_grade(nota) * self.peso
+
+    def alterar_peso(self, novo_peso):
+        novo_peso = float(novo_peso)
+        if novo_peso <= 0:
+            raise ValueError("O peso da avaliacao deve ser maior que zero.")
+        self.peso = novo_peso
+        return self
+
 
 class AvaliacaoObjetiva(Avaliacao):
     questoes = models.JSONField(default=list, help_text="Lista de questões objetivas")
+
+    def adicionar_questao(self, questao):
+        if not questao:
+            raise ValueError("A questao objetiva e obrigatoria.")
+        self.questoes = [*self.questoes, questao]
+        return self
 
     class Meta:
         verbose_name = "Avaliação Objetiva"
@@ -41,6 +59,12 @@ class AvaliacaoDiscursiva(Avaliacao):
 class ProjetoPratico(Avaliacao):
     repositorio = models.URLField(blank=True)
 
+    def vincular_repositorio(self, repositorio):
+        if not repositorio:
+            raise ValueError("O repositorio do projeto e obrigatorio.")
+        self.repositorio = repositorio
+        return self
+
     class Meta:
         verbose_name = "Projeto Prático"
         verbose_name_plural = "Projetos Práticos"
@@ -48,6 +72,14 @@ class ProjetoPratico(Avaliacao):
 
 class ProvaMonitorada(Avaliacao):
     monitoramento_ativo = models.BooleanField(default=True)
+
+    def ativar_monitoramento(self):
+        self.monitoramento_ativo = True
+        return self
+
+    def desativar_monitoramento(self):
+        self.monitoramento_ativo = False
+        return self
 
     class Meta:
         verbose_name = "Prova Monitorada"
@@ -71,3 +103,14 @@ class AvaliacaoRealizada(models.Model):
 
     def __str__(self):
         return f"{self.aluno} — {self.avaliacao}: {self.nota}"
+
+    def registrar_nota(self, nota, *, data):
+        self.nota = validate_grade(nota)
+        self.data = data
+        return self
+
+    def nota_ponderada(self):
+        return self.avaliacao.nota_ponderada(self.nota)
+
+    def foi_aprovada(self, media_minima):
+        return self.nota >= media_minima
