@@ -1,14 +1,18 @@
 from dataclasses import dataclass
+from typing import Any
 
 from django.db import transaction
 
+from students.domain.policies import (
+    cancel_enrollment as apply_cancel_enrollment,
+    reactivate_cancelled_enrollment,
+)
 from students.infrastructure.repositories import DjangoStudentRepository
-from students.models import Matricula
 
 
 @dataclass(frozen=True)
 class EnrollmentResult:
-    enrollment: Matricula
+    enrollment: Any
     created: bool = False
     reactivated: bool = False
 
@@ -28,8 +32,7 @@ def enroll_student(student, course, repository=None):
             created=True,
         )
 
-    if enrollment.status == Matricula.Status.CANCELADA:
-        enrollment.status = Matricula.Status.ATIVA
+    if reactivate_cancelled_enrollment(enrollment):
         repository.save_enrollment(enrollment, fields=["status"])
         return EnrollmentResult(enrollment=enrollment, reactivated=True)
 
@@ -38,7 +41,7 @@ def enroll_student(student, course, repository=None):
 
 @transaction.atomic
 def cancel_enrollment(enrollment, repository=None):
-    enrollment.status = Matricula.Status.CANCELADA
+    apply_cancel_enrollment(enrollment)
     (repository or DjangoStudentRepository()).save_enrollment(
         enrollment,
         fields=["status"],

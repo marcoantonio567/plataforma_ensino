@@ -43,3 +43,26 @@ def validate_certificate_issuance(
 
 def renewed_expiration(current_expiration, new_expiration=None):
     return new_expiration if new_expiration is not None else current_expiration
+
+
+def issue_certificate(certificate, *, expiration=None):
+    certificate.status = CertificateStatus.ISSUED.value
+    if expiration is not None:
+        certificate.validade = expiration
+    return certificate
+
+
+def revoke_certificate(certificate):
+    certificate.status = CertificateStatus.REVOKED.value
+    return certificate
+
+
+def suspend_certificate(certificate):
+    certificate.status = CertificateStatus.SUSPENDED.value
+    return certificate
+
+
+def renew_certificate(certificate, *, new_expiration=None):
+    certificate.status = CertificateStatus.ISSUED.value
+    certificate.validade = renewed_expiration(certificate.validade, new_expiration)
+    return certificate

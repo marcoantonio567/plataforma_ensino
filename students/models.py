@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from students.domain.policies import lock_enrollment
+
 
 class Aluno(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name="aluno")
@@ -19,7 +21,7 @@ class Aluno(models.Model):
         return Matricula.objects.create(aluno=self, curso=curso, regra_curso=regra)
 
     def trancar_matricula(self, matricula):
-        matricula.status = Matricula.Status.TRANCADA
+        lock_enrollment(matricula)
         matricula.save()
 
     def solicitar_aproveitamento(self, matricula, modulo, justificativa=""):

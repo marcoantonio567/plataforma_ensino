@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 
+from courses.domain.policies import current_course_rule
+
 
 class TipoPreRequisito(models.TextChoices):
     CURSO = "CURSO", "Curso"
@@ -23,12 +25,7 @@ class Curso(models.Model):
 
     def regra_vigente(self, data=None):
         data = data or timezone.localdate()
-        return (
-            self.regras.filter(data_inicio__lte=data)
-            .filter(models.Q(data_fim__isnull=True) | models.Q(data_fim__gte=data))
-            .order_by("-data_inicio")
-            .first()
-        )
+        return current_course_rule(self.regras.all(), date=data)
 
 
 class RegraCurso(models.Model):

@@ -1,8 +1,10 @@
 from django.db import transaction
 
 from certifications.domain.policies import (
-    CertificateStatus,
-    renewed_expiration,
+    issue_certificate,
+    renew_certificate,
+    revoke_certificate,
+    suspend_certificate,
     validate_certificate_issuance,
 )
 from certifications.infrastructure.repositories import DjangoCertificateRepository
@@ -23,32 +25,31 @@ def issue(enrollment, expiration=None, repository=None):
         has_severe_integrity_incident=repository.has_severe_integrity_incident(enrollment),
     )
 
-    certificate = repository.get_or_create(enrollment, expiration=expiration)
-    certificate.status = CertificateStatus.ISSUED
-    if expiration is not None:
-        certificate.validade = expiration
+    certificate = issue_certificate(
+        repository.get_or_create(enrollment, expiration=expiration),
+        expiration=expiration,
+    )
     repository.save(certificate, fields=["status", "validade"])
     return certificate
 
 
 @transaction.atomic
 def revoke(certificate, repository=None):
-    certificate.status = CertificateStatus.REVOKED
+    revoke_certificate(certificate)
     (repository or DjangoCertificateRepository()).save(certificate, fields=["status"])
     return certificate
 
 
 @transaction.atomic
 def suspend(certificate, repository=None):
-    certificate.status = CertificateStatus.SUSPENDED
+    suspend_certificate(certificate)
     (repository or DjangoCertificateRepository()).save(certificate, fields=["status"])
     return certificate
 
 
 @transaction.atomic
 def renew(certificate, new_expiration=None, repository=None):
-    certificate.status = CertificateStatus.ISSUED
-    certificate.validade = renewed_expiration(certificate.validade, new_expiration)
+    renew_certificate(certificate, new_expiration=new_expiration)
     (repository or DjangoCertificateRepository()).save(
         certificate,
         fields=["status", "validade"],
