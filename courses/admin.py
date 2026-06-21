@@ -12,15 +12,21 @@ class ModuloInline(admin.TabularInline):
     extra = 1
 
 
+class RegraCursoInline(admin.TabularInline):
+    model = RegraCurso
+    extra = 1
+
+
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
     list_display = ("nome", "carga_horaria")
-    inlines = [PreRequisitoInline, ModuloInline]
+    inlines = [RegraCursoInline, PreRequisitoInline, ModuloInline]
 
 
 @admin.register(RegraCurso)
 class RegraCursoAdmin(admin.ModelAdmin):
-    list_display = ("data_inicio", "data_fim", "media_minima", "carga_horaria_minima", "exige_projeto_final")
+    list_display = ("curso", "data_inicio", "data_fim", "media_minima", "carga_horaria_minima", "exige_projeto_final")
+    list_filter = ("curso", "exige_projeto_final")
 
 
 class AulaInline(admin.TabularInline):

@@ -3,31 +3,119 @@ from datetime import date
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from certifications.application.services import renew, revoke, suspend
-from certifications.models import Certificado, StatusCertificado
-from courses.models import Curso
+from assessments.models import Avaliacao, AvaliacaoRealizada, ProjetoPratico
+from certifications.application.services import issue, renew, revoke, suspend
+from certifications.domain.policies import CertificationDenied
+from certifications.domain.services import AvaliadorElegibilidadeCertificado
+from certifications.models import (
+    Certificado,
+    GravidadeIncidente,
+    StatusCertificado,
+    TipoIncidente,
+)
+from courses.models import Curso, RegraCurso
 from students.models import Aluno, Matricula
 
 
 class CertificateServicesTest(TestCase):
     def setUp(self):
         user = User.objects.create_user("certificate-student")
-        student = Aluno.objects.create(
+        self.student = Aluno.objects.create(
             usuario=user,
             numero_matricula="ALU0001",
             data_ingresso=date.today(),
         )
-        course = Curso.objects.create(nome="Certificacao", carga_horaria=8)
-        enrollment = Matricula.objects.create(aluno=student, curso=course)
-        self.certificate = Certificado.objects.create(matricula=enrollment)
+        self.course = Curso.objects.create(nome="Certificacao", carga_horaria=8)
+        self.rule = RegraCurso.objects.create(
+            curso=self.course,
+            data_inicio=date.today(),
+            media_minima=6.0,
+            carga_horaria_minima=8,
+        )
+        self.enrollment = Matricula.objects.create(
+            aluno=self.student,
+            curso=self.course,
+            regra_curso=self.rule,
+            status=Matricula.Status.CONCLUIDA,
+            media_final=8.0,
+            carga_horaria_cumprida=8,
+        )
 
     def test_certificate_lifecycle(self):
-        suspend(self.certificate)
-        self.assertEqual(self.certificate.status, StatusCertificado.SUSPENSO)
+        certificate = Certificado.objects.create(matricula=self.enrollment)
 
-        renew(self.certificate, date(2030, 1, 1))
-        self.assertEqual(self.certificate.status, StatusCertificado.EMITIDO)
-        self.assertEqual(self.certificate.validade, date(2030, 1, 1))
+        suspend(certificate)
+        self.assertEqual(certificate.status, StatusCertificado.SUSPENSO)
 
-        revoke(self.certificate)
-        self.assertEqual(self.certificate.status, StatusCertificado.REVOGADO)
+        renew(certificate, date(2030, 1, 1))
+        self.assertEqual(certificate.status, StatusCertificado.EMITIDO)
+        self.assertEqual(certificate.validade, date(2030, 1, 1))
+
+        revoke(certificate)
+        self.assertEqual(certificate.status, StatusCertificado.REVOGADO)
+
+        with self.assertRaises(ValueError):
+            certificate.renovar(date(2031, 1, 1))
+
+    def test_issues_certificate_when_enrollment_meets_rule(self):
+        certificate = issue(self.enrollment)
+
+        self.assertEqual(certificate.matricula, self.enrollment)
+        self.assertEqual(certificate.status, StatusCertificado.EMITIDO)
+
+    def test_denies_certificate_when_grade_is_below_minimum(self):
+        self.enrollment.media_final = 5.9
+        self.enrollment.save(update_fields=["media_final"])
+
+        with self.assertRaises(CertificationDenied):
+            issue(self.enrollment)
+
+    def test_denies_certificate_when_there_is_severe_integrity_incident(self):
+        incident = self.enrollment.registrar_incidente_integridade(
+            tipo=TipoIncidente.FRAUDE,
+            gravidade=GravidadeIncidente.GRAVE,
+        )
+        incident.save()
+
+        with self.assertRaises(CertificationDenied):
+            issue(self.enrollment)
+
+    def test_requires_completed_project_when_course_rule_demands_it(self):
+        self.rule.exige_projeto_final = True
+        self.rule.save(update_fields=["exige_projeto_final"])
+
+        with self.assertRaises(CertificationDenied):
+            issue(self.enrollment)
+
+        module = self.course.adicionar_modulo(nome="Final", ordem=1)
+        module.save()
+        project = ProjetoPratico.objects.create(
+            modulo=module,
+            tipo=Avaliacao.Tipo.PROJETO_PRATICO,
+            peso=1,
+        )
+        AvaliacaoRealizada.objects.create(
+            aluno=self.student,
+            avaliacao=project,
+            nota=8.0,
+            data=date.today(),
+        )
+
+        certificate = issue(self.enrollment)
+        self.assertEqual(certificate.status, StatusCertificado.EMITIDO)
+
+    def test_domain_service_validates_certificate_eligibility(self):
+        AvaliadorElegibilidadeCertificado.validar_emissao(
+            self.enrollment,
+            concluiu_projeto_obrigatorio=False,
+            possui_incidente_grave=False,
+        )
+
+        self.enrollment.status = Matricula.Status.ATIVA
+
+        with self.assertRaises(CertificationDenied):
+            AvaliadorElegibilidadeCertificado.validar_emissao(
+                self.enrollment,
+                concluiu_projeto_obrigatorio=False,
+                possui_incidente_grave=False,
+            )

@@ -84,6 +84,7 @@ def gerenciar_curso(request, curso_id):
             aula_form = AulaForm(request.POST)
             if aula_form.is_valid():
                 services.create_lesson(
+                    curso,
                     modulo,
                     title=aula_form.cleaned_data["titulo"],
                     duration=aula_form.cleaned_data["duracao"],
