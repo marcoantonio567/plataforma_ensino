@@ -1,7 +1,7 @@
 ﻿# Teaching Platform
 
 <p align="center">
-  <a href="README.pt-BR.md">
+  <a href="README.md">
     <img alt="Leia em Portugues" src="https://img.shields.io/badge/README-Portugues-1f6feb?style=for-the-badge&labelColor=0d1117">
   </a>
   <a href="README.en.md">
