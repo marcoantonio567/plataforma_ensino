@@ -2,6 +2,13 @@ from django.db import models
 from django.utils import timezone
 
 from courses.domain.policies import current_course_rule
+from courses.domain.value_objects import (
+    CargaHoraria,
+    CargaHorariaMinima,
+    DuracaoAula,
+    MediaMinima,
+    Ordem,
+)
 
 
 class TipoPreRequisito(models.TextChoices):
@@ -23,6 +30,17 @@ class Curso(models.Model):
     def __str__(self):
         return self.nome
 
+    def _validate_value_objects(self):
+        self.carga_horaria = int(CargaHoraria(self.carga_horaria))
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        return super().save(*args, **kwargs)
+
     def regra_vigente(self, data=None):
         data = data or timezone.localdate()
         return current_course_rule(self.regras.all(), date=data)
@@ -30,9 +48,7 @@ class Curso(models.Model):
     def adicionar_modulo(self, *, nome, ordem):
         if not nome or not nome.strip():
             raise ValueError("O nome do modulo e obrigatorio.")
-        if ordem < 1:
-            raise ValueError("A ordem do modulo deve ser maior que zero.")
-        return Modulo(curso=self, nome=nome.strip(), ordem=ordem)
+        return Modulo(curso=self, nome=nome.strip(), ordem=int(Ordem(ordem)))
 
 
 class RegraCurso(models.Model):
@@ -51,6 +67,20 @@ class RegraCurso(models.Model):
     def __str__(self):
         return f"Regra (início: {self.data_inicio})"
 
+
+    def _validate_value_objects(self):
+        self.media_minima = float(MediaMinima(self.media_minima))
+        self.carga_horaria_minima = int(CargaHorariaMinima(self.carga_horaria_minima))
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+        self.validar_periodo()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        self.validar_periodo()
+        return super().save(*args, **kwargs)
 
     def esta_vigente(self, data=None):
         data = data or timezone.localdate()
@@ -82,25 +112,32 @@ class Modulo(models.Model):
         return f"{self.curso} — Módulo {self.ordem}: {self.nome}"
 
 
+    def _validate_value_objects(self):
+        self.ordem = int(Ordem(self.ordem))
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        return super().save(*args, **kwargs)
+
     def adicionar_aula(self, *, titulo, duracao, conteudo="", ordem):
         if not titulo or not titulo.strip():
             raise ValueError("O titulo da aula e obrigatorio.")
-        if duracao <= 0:
-            raise ValueError("A duracao da aula deve ser maior que zero.")
-        if ordem < 1:
-            raise ValueError("A ordem da aula deve ser maior que zero.")
+        duracao = DuracaoAula(duracao)
+        ordem = Ordem(ordem)
         return Aula(
             modulo=self,
             titulo=titulo.strip(),
-            duracao=duracao,
+            duracao=int(duracao),
             conteudo=conteudo,
-            ordem=ordem,
+            ordem=int(ordem),
         )
 
     def reordenar(self, nova_ordem):
-        if nova_ordem < 1:
-            raise ValueError("A ordem do modulo deve ser maior que zero.")
-        self.ordem = nova_ordem
+        self.ordem = int(Ordem(nova_ordem))
         return self
 
 
@@ -121,10 +158,20 @@ class Aula(models.Model):
         return f"{self.modulo} — Aula {self.ordem}: {self.titulo}"
 
 
+    def _validate_value_objects(self):
+        self.duracao = int(DuracaoAula(self.duracao))
+        self.ordem = int(Ordem(self.ordem))
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        return super().save(*args, **kwargs)
+
     def reordenar(self, nova_ordem):
-        if nova_ordem < 1:
-            raise ValueError("A ordem da aula deve ser maior que zero.")
-        self.ordem = nova_ordem
+        self.ordem = int(Ordem(nova_ordem))
         return self
 
     def atualizar_conteudo(self, *, titulo=None, conteudo=None, duracao=None):
@@ -135,9 +182,7 @@ class Aula(models.Model):
         if conteudo is not None:
             self.conteudo = conteudo
         if duracao is not None:
-            if duracao <= 0:
-                raise ValueError("A duracao da aula deve ser maior que zero.")
-            self.duracao = duracao
+            self.duracao = int(DuracaoAula(duracao))
         return self
 
 

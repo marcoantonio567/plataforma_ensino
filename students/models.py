@@ -5,6 +5,13 @@ from students.domain.exceptions import (
     InvalidEnrollmentTransition,
     InvalidRequestTransition,
 )
+from students.domain.value_objects import (
+    CargaHorariaCumprida,
+    InvalidStudentValue,
+    MediaFinal,
+    NumeroMatricula,
+    PercentualProgresso,
+)
 
 
 class Aluno(models.Model):
@@ -18,6 +25,17 @@ class Aluno(models.Model):
 
     def __str__(self):
         return self.usuario.get_full_name() or self.usuario.username
+
+    def _validate_value_objects(self):
+        self.numero_matricula = str(NumeroMatricula(self.numero_matricula))
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        return super().save(*args, **kwargs)
 
     def matricular(self, curso):
         regra = curso.regra_vigente()
@@ -86,6 +104,20 @@ class Matricula(models.Model):
                 f"Status permitidos: {allowed}."
             )
 
+    def _validate_value_objects(self):
+        if self.media_final is not None:
+            self.media_final = float(MediaFinal(self.media_final))
+        self.progresso = float(PercentualProgresso(self.progresso))
+        self.carga_horaria_cumprida = int(CargaHorariaCumprida(self.carga_horaria_cumprida))
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        return super().save(*args, **kwargs)
+
     def cancelar(self):
         self._ensure_status([self.Status.ATIVA, self.Status.TRANCADA], "cancelar")
         self.status = self.Status.CANCELADA
@@ -106,22 +138,31 @@ class Matricula(models.Model):
         if media_final is None:
             raise InvalidEnrollmentTransition("A media final e obrigatoria para concluir.")
 
-        self.media_final = float(media_final)
-        if carga_horaria_cumprida is not None:
-            self.carga_horaria_cumprida = carga_horaria_cumprida
-        self.progresso = 100.0
+        try:
+            self.media_final = float(MediaFinal(media_final))
+            if carga_horaria_cumprida is not None:
+                self.carga_horaria_cumprida = int(CargaHorariaCumprida(carga_horaria_cumprida))
+            self.progresso = float(PercentualProgresso(100))
+        except InvalidStudentValue as exc:
+            raise InvalidEnrollmentTransition(str(exc)) from exc
         self.status = self.Status.CONCLUIDA
         return self
 
     def atualizar_progresso(self, percentual, *, carga_horaria_cumprida=None):
         self._ensure_status([self.Status.ATIVA], "atualizar o progresso de")
-        percentual = float(percentual)
-        if not 0 <= percentual <= 100:
-            raise InvalidEnrollmentTransition("O progresso deve estar entre 0 e 100.")
+        try:
+            percentual = PercentualProgresso(percentual)
+            carga_horaria = (
+                None
+                if carga_horaria_cumprida is None
+                else CargaHorariaCumprida(carga_horaria_cumprida)
+            )
+        except InvalidStudentValue as exc:
+            raise InvalidEnrollmentTransition(str(exc)) from exc
 
-        self.progresso = percentual
-        if carga_horaria_cumprida is not None:
-            self.carga_horaria_cumprida = carga_horaria_cumprida
+        self.progresso = float(percentual)
+        if carga_horaria is not None:
+            self.carga_horaria_cumprida = int(carga_horaria)
         return self
 
     def emitir_certificado(self, validade=None):

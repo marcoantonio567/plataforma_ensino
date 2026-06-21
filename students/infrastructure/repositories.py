@@ -2,6 +2,7 @@ import uuid
 
 from django.utils import timezone
 
+from students.domain.value_objects import NumeroMatricula
 from students.models import Aluno, Matricula
 
 
@@ -12,7 +13,7 @@ class DjangoStudentRepository:
         except Aluno.DoesNotExist:
             return Aluno.objects.create(
                 usuario=user,
-                numero_matricula=f"ALU{uuid.uuid4().hex[:8].upper()}",
+                numero_matricula=str(NumeroMatricula(f"ALU{uuid.uuid4().hex[:8].upper()}")),
                 data_ingresso=timezone.localdate(),
             )
 

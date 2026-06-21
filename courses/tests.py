@@ -3,6 +3,7 @@ from datetime import date
 from django.test import TestCase
 
 from courses.application.services import create_lesson, create_module
+from courses.domain.value_objects import CargaHoraria, DuracaoAula, InvalidCourseValue
 from courses.models import Curso, RegraCurso
 
 
@@ -39,3 +40,13 @@ class CourseServicesTest(TestCase):
 
         self.assertEqual(self.course.regra_vigente(date(2025, 6, 1)), old_rule)
         self.assertEqual(self.course.regra_vigente(date(2026, 6, 1)), current_rule)
+
+    def test_course_value_objects_validate_and_compare_by_value(self):
+        self.assertEqual(CargaHoraria(20), CargaHoraria("20"))
+        self.assertEqual(DuracaoAula(30), DuracaoAula(30))
+
+        with self.assertRaises(InvalidCourseValue):
+            CargaHoraria(0)
+
+        with self.assertRaises(Exception):
+            DuracaoAula(30).valor = 45

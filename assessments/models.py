@@ -104,6 +104,18 @@ class AvaliacaoRealizada(models.Model):
     def __str__(self):
         return f"{self.aluno} — {self.avaliacao}: {self.nota}"
 
+    def _validate_value_objects(self):
+        if self.nota is not None:
+            self.nota = validate_grade(self.nota)
+
+    def clean(self):
+        super().clean()
+        self._validate_value_objects()
+
+    def save(self, *args, **kwargs):
+        self._validate_value_objects()
+        return super().save(*args, **kwargs)
+
     def registrar_nota(self, nota, *, data):
         self.nota = validate_grade(nota)
         self.data = data

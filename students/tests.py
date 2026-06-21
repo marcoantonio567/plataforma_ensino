@@ -9,6 +9,11 @@ from students.application.services import (
     get_or_create_student,
 )
 from students.domain.exceptions import InvalidEnrollmentTransition
+from students.domain.value_objects import (
+    InvalidStudentValue,
+    NumeroMatricula,
+    PercentualProgresso,
+)
 from students.models import Matricula
 
 
@@ -47,3 +52,13 @@ class EnrollmentServicesTest(TestCase):
 
         with self.assertRaises(InvalidEnrollmentTransition):
             enrollment.atualizar_progresso(120)
+
+    def test_student_value_objects_validate_and_compare_by_value(self):
+        self.assertEqual(NumeroMatricula("alu0001"), NumeroMatricula("ALU0001"))
+        self.assertEqual(PercentualProgresso(50), PercentualProgresso(50.0))
+
+        with self.assertRaises(InvalidStudentValue):
+            NumeroMatricula("123")
+
+        with self.assertRaises(Exception):
+            PercentualProgresso(10).valor = 20
