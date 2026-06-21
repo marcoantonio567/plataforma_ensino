@@ -113,6 +113,57 @@ plataforma_ensino/                  # Raiz do projeto
 
 ---
 
+## Decisão Arquitetural: Estrutura DDD por App
+
+### Contexto
+
+Em projetos Django com vários domínios, como cursos, alunos, avaliações e certificações, existem duas formas comuns de aplicar DDD. A estrutura centralizada agrupa todas as camadas em pastas globais (`domain/`, `application/`, `infrastructure/`, `interfaces/`). A estrutura descentralizada organiza essas camadas dentro de cada app Django.
+
+### Decisão
+
+Este projeto adota DDD por app. Cada bounded context mantém suas próprias regras de negócio, casos de uso, adaptadores e interfaces:
+
+```
+courses/
+  domain/
+  application/
+  infrastructure/
+  interfaces/
+students/
+  domain/
+  application/
+  infrastructure/
+  interfaces/
+```
+
+### Justificativa
+
+A escolha favorece modularidade e baixo acoplamento. Como cada app representa uma área funcional do negócio, manter as camadas dentro dele facilita evoluir, testar e compreender o contexto sem navegar por diretórios globais muito amplos. Também preserva a forma natural de organização do Django, onde apps são unidades de responsabilidade, roteamento, admin, migrations e configuração.
+
+Exemplo prático:
+
+```python
+# students/application/matricular_aluno.py
+class MatricularAluno:
+    def __init__(self, matricula_repository):
+        self.matriculas = matricula_repository
+
+    def executar(self, aluno, curso):
+        matricula = aluno.matricular(curso)  # regra no domínio
+        self.matriculas.salvar(matricula)    # persistência na infraestrutura
+        return matricula
+```
+
+### Alternativas consideradas
+
+A estrutura centralizada pode ser útil em sistemas menores ou em equipes que preferem visualizar todas as entidades de domínio juntas. Porém, em projetos com múltiplos apps, ela tende a misturar contextos e aumentar o custo de navegação.
+
+### Consequências
+
+Positivamente, a arquitetura por app melhora coesão, isolamento e escalabilidade organizacional. Negativamente, pode gerar repetição de pastas e exige disciplina para evitar duplicação de conceitos compartilhados. Quando houver regras transversais, elas devem ser extraídas com critério para módulos compartilhados bem definidos.
+
+---
+
 ## Descrição dos Apps
 
 ### `plataforma_ensino/` — Configuração do Projeto
