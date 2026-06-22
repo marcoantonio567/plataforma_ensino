@@ -221,7 +221,112 @@ A dependencia esperada e `presentation -> application -> domain`, com infraestru
 
 ## 18. Diagrama do modelo de dominio
 
-![Diagrama do modelo de dominio](diagrama.svg)
+```mermaid
+erDiagram
+    CURSO ||--o{ REGRA_CURSO : possui
+    CURSO ||--o{ MODULO : organiza
+    CURSO ||--o{ PRE_REQUISITO : define
+    CURSO ||--o{ MATRICULA : recebe
+    MODULO ||--o{ AULA : contem
+    MODULO ||--o{ AVALIACAO : aplica
+    ALUNO ||--o{ MATRICULA : realiza
+    ALUNO ||--o{ AVALIACAO_REALIZADA : registra
+    MATRICULA ||--o{ SOLICITACAO : abre
+    MATRICULA ||--o{ EQUIVALENCIA : registra
+    MATRICULA ||--o{ INCIDENTE_INTEGRIDADE : possui
+    MATRICULA ||--o| CERTIFICADO : gera
+    AVALIACAO ||--o{ AVALIACAO_REALIZADA : recebe
+
+    CURSO {
+        int id
+        string nome
+        int carga_horaria
+    }
+
+    REGRA_CURSO {
+        int id
+        float media_minima
+        int carga_horaria_minima
+        boolean exige_projeto_final
+        date data_inicio
+        date data_fim
+    }
+
+    MODULO {
+        int id
+        string nome
+        int ordem
+    }
+
+    AULA {
+        int id
+        string titulo
+        int duracao
+        int ordem
+    }
+
+    PRE_REQUISITO {
+        int id
+        string tipo
+        int referencia_id
+    }
+
+    ALUNO {
+        int id
+        string numero_matricula
+        date data_ingresso
+    }
+
+    MATRICULA {
+        int id
+        date data_matricula
+        string status
+        float media_final
+        float progresso
+        int carga_horaria_cumprida
+    }
+
+    SOLICITACAO {
+        int id
+        date data
+        string status
+        string justificativa
+    }
+
+    EQUIVALENCIA {
+        int id
+        string instituicao_origem
+        string disciplina_origem
+        string disciplina_destino
+        boolean aprovado
+    }
+
+    AVALIACAO {
+        int id
+        string tipo
+        float peso
+    }
+
+    AVALIACAO_REALIZADA {
+        int id
+        float nota
+        date data
+    }
+
+    CERTIFICADO {
+        int id
+        date data_emissao
+        date validade
+        string status
+    }
+
+    INCIDENTE_INTEGRIDADE {
+        int id
+        string tipo
+        string gravidade
+        datetime data
+    }
+```
 
 ## 19. Testes e validacoes realizadas
 
