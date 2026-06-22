@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" role="img" aria-labelledby="title desc">
+  <title id="title">Diagrama do modelo de dominio</title>
+  <desc id="desc">Modelo de dominio da Plataforma de Ensino com cursos, alunos, matriculas, avaliacoes e certificacao.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#475569"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { fill: #ffffff; stroke: #334155; stroke-width: 1.5; rx: 8; }
+      .root { fill: #eff6ff; stroke: #1d4ed8; stroke-width: 2; rx: 8; }
+      .title { fill: #0f172a; font-family: Arial, sans-serif; font-size: 16px; font-weight: 700; }
+      .text { fill: #334155; font-family: Arial, sans-serif; font-size: 13px; }
+      .label { fill: #475569; font-family: Arial, sans-serif; font-size: 12px; }
+      .line { stroke: #475569; stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1200" height="900"/>
+  <text class="title" x="420" y="36">Diagrama do Modelo de Dominio</text>
+
+  <rect class="root" x="60" y="90" width="210" height="120"/>
+  <text class="title" x="82" y="120">Curso</text>
+  <text class="text" x="82" y="145">id, nome</text>
+  <text class="text" x="82" y="166">carga_horaria</text>
+  <text class="text" x="82" y="187">regra_vigente()</text>
+
+  <rect class="box" x="355" y="60" width="240" height="150"/>
+  <text class="title" x="377" y="90">RegraCurso</text>
+  <text class="text" x="377" y="115">media_minima</text>
+  <text class="text" x="377" y="136">carga_horaria_minima</text>
+  <text class="text" x="377" y="157">exige_projeto_final</text>
+  <text class="text" x="377" y="178">periodo de vigencia</text>
+
+  <rect class="box" x="60" y="290" width="210" height="110"/>
+  <text class="title" x="82" y="320">Modulo</text>
+  <text class="text" x="82" y="345">id, nome, ordem</text>
+  <text class="text" x="82" y="366">adicionar_aula()</text>
+
+  <rect class="box" x="60" y="480" width="210" height="110"/>
+  <text class="title" x="82" y="510">Aula</text>
+  <text class="text" x="82" y="535">titulo, conteudo</text>
+  <text class="text" x="82" y="556">duracao, ordem</text>
+
+  <rect class="box" x="355" y="290" width="240" height="110"/>
+  <text class="title" x="377" y="320">Avaliacao</text>
+  <text class="text" x="377" y="345">tipo, peso</text>
+  <text class="text" x="377" y="366">nota_ponderada()</text>
+
+  <rect class="box" x="650" y="290" width="250" height="120"/>
+  <text class="title" x="672" y="320">AvaliacaoRealizada</text>
+  <text class="text" x="672" y="345">nota, data</text>
+  <text class="text" x="672" y="366">registrar_nota()</text>
+  <text class="text" x="672" y="387">foi_aprovada()</text>
+
+  <rect class="root" x="650" y="90" width="220" height="120"/>
+  <text class="title" x="672" y="120">Aluno</text>
+  <text class="text" x="672" y="145">numero_matricula</text>
+  <text class="text" x="672" y="166">data_ingresso</text>
+  <text class="text" x="672" y="187">matricular()</text>
+
+  <rect class="root" x="955" y="90" width="210" height="150"/>
+  <text class="title" x="977" y="120">Matricula</text>
+  <text class="text" x="977" y="145">status, progresso</text>
+  <text class="text" x="977" y="166">media_final</text>
+  <text class="text" x="977" y="187">concluir()</text>
+  <text class="text" x="977" y="208">cancelar(), trancar()</text>
+
+  <rect class="box" x="955" y="315" width="210" height="125"/>
+  <text class="title" x="977" y="345">Solicitacao</text>
+  <text class="text" x="977" y="370">status, justificativa</text>
+  <text class="text" x="977" y="391">aprovar()</text>
+  <text class="text" x="977" y="412">rejeitar()</text>
+
+  <rect class="box" x="955" y="510" width="210" height="110"/>
+  <text class="title" x="977" y="540">Equivalencia</text>
+  <text class="text" x="977" y="565">instituicao_origem</text>
+  <text class="text" x="977" y="586">aprovar(), reprovar()</text>
+
+  <rect class="root" x="650" y="510" width="250" height="130"/>
+  <text class="title" x="672" y="540">Certificado</text>
+  <text class="text" x="672" y="565">data_emissao, validade</text>
+  <text class="text" x="672" y="586">status</text>
+  <text class="text" x="672" y="607">emitir(), revogar()</text>
+
+  <rect class="box" x="355" y="510" width="240" height="130"/>
+  <text class="title" x="377" y="540">IncidenteIntegridade</text>
+  <text class="text" x="377" y="565">tipo, gravidade</text>
+  <text class="text" x="377" y="586">data</text>
+  <text class="text" x="377" y="607">bloqueia certificacao</text>
+
+  <rect class="box" x="60" y="690" width="240" height="110"/>
+  <text class="title" x="82" y="720">PreRequisito</text>
+  <text class="text" x="82" y="745">tipo</text>
+  <text class="text" x="82" y="766">referencia_id</text>
+
+  <path class="line" d="M270 130 C300 130 325 125 355 120"/>
+  <text class="label" x="292" y="112">possui</text>
+
+  <path class="line" d="M165 210 L165 290"/>
+  <text class="label" x="180" y="255">organiza</text>
+
+  <path class="line" d="M165 400 L165 480"/>
+  <text class="label" x="180" y="445">contem</text>
+
+  <path class="line" d="M270 345 L355 345"/>
+  <text class="label" x="292" y="334">aplica</text>
+
+  <path class="line" d="M595 350 L650 350"/>
+  <text class="label" x="604" y="338">recebe</text>
+
+  <path class="line" d="M760 210 C760 250 755 260 750 290"/>
+  <text class="label" x="770" y="255">registra</text>
+
+  <path class="line" d="M870 150 L955 150"/>
+  <text class="label" x="895" y="138">realiza</text>
+
+  <path class="line" d="M270 165 C545 250 760 210 955 175"/>
+  <text class="label" x="552" y="231">recebe</text>
+
+  <path class="line" d="M1060 240 L1060 315"/>
+  <text class="label" x="1074" y="282">abre</text>
+
+  <path class="line" d="M1060 440 L1060 510"/>
+  <text class="label" x="1074" y="480">registra</text>
+
+  <path class="line" d="M955 200 C875 265 800 420 775 510"/>
+  <text class="label" x="817" y="398">gera</text>
+
+  <path class="line" d="M955 215 C785 360 640 450 595 540"/>
+  <text class="label" x="681" y="454">possui</text>
+
+  <path class="line" d="M165 590 L180 690"/>
+  <text class="label" x="195" y="645">define</text>
+</svg>
