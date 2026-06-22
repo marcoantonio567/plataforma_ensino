@@ -115,6 +115,42 @@ class Matricula(models.Model):
                 f"Status permitidos: {allowed}."
             )
 
+    def _validate_status_transition(self):
+        if self.pk is None:
+            return
+
+        previous = type(self).objects.only("status").get(pk=self.pk)
+        if previous.status == self.status:
+            return
+
+        allowed_transitions = {
+            self.Status.ATIVA: {
+                self.Status.TRANCADA,
+                self.Status.CANCELADA,
+                self.Status.CONCLUIDA,
+            },
+            self.Status.TRANCADA: {self.Status.ATIVA, self.Status.CANCELADA},
+            self.Status.CANCELADA: {self.Status.ATIVA},
+            self.Status.CONCLUIDA: set(),
+        }
+        if self.status not in allowed_transitions[previous.status]:
+            raise InvalidEnrollmentTransition(
+                f"Transicao de matricula invalida: {previous.status} -> {self.status}."
+            )
+
+    def _validate_course_rule(self):
+        if self.regra_curso_id is None:
+            raise InvalidEnrollmentTransition(
+                "A matricula deve registrar a regra de curso vigente."
+            )
+
+        rule_course_id = getattr(self.regra_curso, "curso_id", None)
+        if rule_course_id is not None and self.curso_id is not None:
+            if rule_course_id != self.curso_id:
+                raise InvalidEnrollmentTransition(
+                    "A regra de curso da matricula deve pertencer ao mesmo curso."
+                )
+
     def _validate_value_objects(self):
         if self.media_final is not None:
             self.media_final = float(MediaFinal(self.media_final))
@@ -124,9 +160,13 @@ class Matricula(models.Model):
     def clean(self):
         super().clean()
         self._validate_value_objects()
+        self._validate_course_rule()
+        self._validate_status_transition()
 
     def save(self, *args, **kwargs):
         self._validate_value_objects()
+        self._validate_course_rule()
+        self._validate_status_transition()
         return super().save(*args, **kwargs)
 
     def cancelar(self):

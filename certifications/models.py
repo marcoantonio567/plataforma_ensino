@@ -1,5 +1,7 @@
 from django.db import models
 
+from certifications.domain.services import validar_emissao_certificado
+
 
 class StatusCertificado(models.TextChoices):
     EMITIDO = "EMITIDO", "Emitido"
@@ -58,6 +60,68 @@ class Certificado(models.Model):
 
     def __str__(self):
         return f"Certificado - {self.matricula}"
+
+    def _has_completed_required_project(self):
+        from assessments.models import Avaliacao, AvaliacaoRealizada
+
+        regra = self.matricula.regra_curso
+        minimum_grade = regra.media_minima if regra is not None else 0
+        return AvaliacaoRealizada.objects.filter(
+            aluno=self.matricula.aluno,
+            avaliacao__modulo__curso=self.matricula.curso,
+            avaliacao__tipo=Avaliacao.Tipo.PROJETO_PRATICO,
+            nota__gte=minimum_grade,
+        ).exists()
+
+    def _has_severe_integrity_incident(self):
+        return IncidenteIntegridade.objects.filter(
+            matricula=self.matricula,
+            gravidade=GravidadeIncidente.GRAVE,
+        ).exists()
+
+    def _validate_status_transition(self):
+        if self.pk is None:
+            return
+
+        previous = type(self).objects.only("status").get(pk=self.pk)
+        if previous.status == self.status:
+            return
+
+        allowed_transitions = {
+            StatusCertificado.EMITIDO: {
+                StatusCertificado.SUSPENSO,
+                StatusCertificado.REVOGADO,
+            },
+            StatusCertificado.SUSPENSO: {
+                StatusCertificado.EMITIDO,
+                StatusCertificado.REVOGADO,
+            },
+            StatusCertificado.REVOGADO: set(),
+        }
+        if self.status not in allowed_transitions[previous.status]:
+            raise ValueError(
+                f"Transicao de certificado invalida: {previous.status} -> {self.status}."
+            )
+
+    def _validate_issuance_when_issued(self):
+        if self.status != StatusCertificado.EMITIDO:
+            return
+
+        validar_emissao_certificado(
+            self.matricula,
+            concluiu_projeto_obrigatorio=self._has_completed_required_project(),
+            possui_incidente_grave=self._has_severe_integrity_incident(),
+        )
+
+    def clean(self):
+        super().clean()
+        self._validate_status_transition()
+        self._validate_issuance_when_issued()
+
+    def save(self, *args, **kwargs):
+        self._validate_status_transition()
+        self._validate_issuance_when_issued()
+        return super().save(*args, **kwargs)
 
     def emitir(self, validade=None):
         if self.status == StatusCertificado.REVOGADO:

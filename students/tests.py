@@ -87,3 +87,34 @@ class EnrollmentServicesTest(TestCase):
 
         with self.assertRaises(ValueError):
             MatriculaFactory.criar(self.student, course)
+
+    def test_enrollment_rejects_rule_from_another_course_on_save(self):
+        other_course = Curso.objects.create(nome="Outro", carga_horaria=5)
+        other_rule = RegraCurso.objects.create(
+            curso=other_course,
+            data_inicio=timezone.localdate(),
+        )
+
+        with self.assertRaises(InvalidEnrollmentTransition):
+            Matricula.objects.create(
+                aluno=self.student,
+                curso=self.course,
+                regra_curso=other_rule,
+            )
+
+    def test_enrollment_rejects_invalid_direct_status_transition_on_save(self):
+        enrollment = enroll_student(self.student, self.course).enrollment
+        enrollment.concluir(media_final=8.0, carga_horaria_cumprida=10)
+        enrollment.save(
+            update_fields=[
+                "status",
+                "media_final",
+                "progresso",
+                "carga_horaria_cumprida",
+            ]
+        )
+
+        enrollment.status = Matricula.Status.ATIVA
+
+        with self.assertRaises(InvalidEnrollmentTransition):
+            enrollment.save(update_fields=["status"])

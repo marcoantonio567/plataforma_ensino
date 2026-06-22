@@ -26,11 +26,22 @@ class Avaliacao(models.Model):
     def nota_ponderada(self, nota):
         return validate_grade(nota) * self.peso
 
-    def alterar_peso(self, novo_peso):
-        novo_peso = float(novo_peso)
-        if novo_peso <= 0:
+    def _validate_weight(self):
+        self.peso = float(self.peso)
+        if self.peso <= 0:
             raise ValueError("O peso da avaliacao deve ser maior que zero.")
+
+    def clean(self):
+        super().clean()
+        self._validate_weight()
+
+    def save(self, *args, **kwargs):
+        self._validate_weight()
+        return super().save(*args, **kwargs)
+
+    def alterar_peso(self, novo_peso):
         self.peso = novo_peso
+        self._validate_weight()
         return self
 
 

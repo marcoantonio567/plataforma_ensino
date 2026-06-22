@@ -1,11 +1,12 @@
 # Arquitetura DDD
 
-O sistema esta dividido em quatro contextos delimitados:
+O sistema esta dividido em quatro modulos de negocio, usados como contextos
+delimitados:
 
-- `courses`: catalogo, modulos, aulas e regras de curso.
-- `students`: alunos, matriculas e solicitacoes academicas.
-- `assessments`: avaliacoes e notas.
-- `certifications`: certificados e integridade academica.
+- `courses`: Catalogo de Cursos.
+- `students`: Jornada Academica.
+- `assessments`: Avaliacoes.
+- `certifications`: Certificacao e Integridade Academica.
 
 Cada contexto segue as mesmas camadas:
 
@@ -37,4 +38,6 @@ repositorios alternativos para testes ou outra persistencia.
 - Policies guardam regras puras que podem ser testadas sem banco.
 - Domain Services guardam operacoes de negocio que nao pertencem naturalmente a
   uma unica Entity ou Value Object.
+- Modules agrupam elementos por conceito de negocio; camadas tecnicas ficam
+  dentro de cada modulo, nao como criterio principal de organizacao.
 - Imports publicos antigos sao mantidos para preservar URLs, admin e migrations.
